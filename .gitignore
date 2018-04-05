@@ -1,22 +1,54 @@
-# Compiled class file
-*.class
 
-# Log file
+#ignore thumbnails created by windows
+Thumbs.db
+#Ignore files build by Visual Studio
+*.obj
+*.exe
+*.pdb
+*.user
+*.aps
+*.pch
+*.vspscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
 *.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.ear
+[Bb]in
+[Dd]ebug*/
+*.lib
+*.sbr
+obj/
+[Rr]elease*/
+_ReSharper*/
+[Tt]est[Rr]esult*
+*.dll
+*/.gradle/*
+*/.idea/
+*.class
+*/.idea/*
+*/.idea/*
+*/build/*
+dep.txt
+mpclient/.idea/workspace.xml
+Docs/design/Masterpiece.ldb
+*/target/
 *.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+*.iml
+**/build/
+*.jar
+***/.idea/*
+*/ui/*
+autocode/classes/*
+mpserver/dump-storage/**
+mpserver/temp/**
+urltext/url*.txt
+urltext/submit.sh
+.gradle/3.1/
+.idea/
+!/gradle/wrapper/dists/gradle-3.1-all.zip

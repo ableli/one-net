@@ -1,0 +1,23 @@
+subprojects {
+    task checkDeps {
+
+    }
+
+    compileJava.dependsOn(checkDeps)
+
+
+    task checkConflict(type: DependencyReportTask) {
+        outputFile = project.file('build/dep.txt')
+    }
+
+    checkDeps.dependsOn(checkConflict)
+
+    configurations.all {
+        resolutionStrategy {
+            cacheChangingModulesFor 1, 'seconds'
+            if ("false" == System.getProperty("allowConflicts", "false")) {
+                failOnVersionConflict()
+            }
+        }
+    }
+}

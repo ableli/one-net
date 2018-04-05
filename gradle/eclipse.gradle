@@ -1,0 +1,15 @@
+subprojects {
+    apply plugin: 'eclipse'
+
+    eclipse {
+        jdt {
+            sourceCompatibility = "${buildJavaVersion}"
+            targetCompatibility = "${buildJavaVersion}"
+            javaRuntimeName = "J2SE-${buildJavaVersion}"
+        }
+
+        project {
+            natures 'org.springsource.ide.eclipse.gradle.core.nature'
+        }
+    }
+}

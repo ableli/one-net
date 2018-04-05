@@ -1,0 +1,9 @@
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+logging:
+  level:
+    root: error
+    org.springframework.boot: error
+    com.weyong: debug

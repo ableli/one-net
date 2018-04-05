@@ -1,0 +1,12 @@
+subprojects {
+    apply plugin: 'net.saliman.cobertura'
+
+    cobertura {
+        // enabled = false
+        /*rootProject.subprojects.each {
+            coverageDirs << file("${it.name}/build/classes/main")
+        }*/
+
+    }
+    test.finalizedBy(project.tasks.cobertura)
+}

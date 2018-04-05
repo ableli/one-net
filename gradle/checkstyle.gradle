@@ -1,0 +1,12 @@
+subprojects {
+    apply plugin: 'checkstyle'
+
+    checkstyle {
+        toolVersion = '6.19'
+        configFile rootProject.file('gradle/checkstyle/checkstyle.xml')
+        showViolations true
+        configProperties = [
+                'checkstyle.cache.file': rootProject.file('build/checkstyle.cache')
+        ]
+    }
+}

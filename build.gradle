@@ -1,0 +1,60 @@
+// 所有版本和参数均在 gradle.properties里面管理
+buildscript {
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+        classpath "net.saliman:gradle-cobertura-plugin:2.4.0"
+        classpath "com.gradle:build-scan-plugin:1.4"
+    }
+    repositories {
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        jcenter()
+        maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url 'https://repo.spring.io/plugins-release' }
+    }
+}
+apply from: rootProject.file('gradle/scan.gradle')
+apply from: rootProject.file('gradle/wrapper.gradle')
+apply from: rootProject.file('gradle/repos.gradle')
+
+allprojects {
+    group 'com.weyong'
+    version "${projectVersion}"
+    apply plugin: 'java'
+    tasks.withType(JavaCompile) {
+        options.incremental = true
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    ext {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    task printProps {
+        doLast {
+            println libnd4jOS
+        }
+    }
+}
+
+apply from: rootProject.file('gradle/deps.gradle')
+
+subprojects {
+    dependencies {
+        provided 'org.projectlombok:lombok'
+
+        testCompile("junit:junit:4.11")
+    }
+}
+
+afterEvaluate {
+    tasks.dependencies.dependsOn(childProjects.values().collect { ':' + it.name + ':dependencies' })
+}
+
+apply from: rootProject.file('gradle/checkstyle.gradle')
+apply from: rootProject.file('gradle/findbugs.gradle')
+apply from: rootProject.file('gradle/cobertura.gradle')
+apply from: rootProject.file('gradle/pmd.gradle')
+apply from: rootProject.file('gradle/deps-check.gradle')
+apply from: rootProject.file('gradle/expand.gradle')

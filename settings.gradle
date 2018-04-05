@@ -1,0 +1,6 @@
+rootProject.name = 'one-net'
+
+include 'one-net-server'
+include 'one-net-client'
+include 'one-net-common'
+

@@ -1,0 +1,25 @@
+import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
+
+apply plugin: 'idea'
+
+idea {
+    project {
+        jdkName = "${buildJavaVersion}"
+        languageLevel = "${buildJavaVersion}"
+        targetBytecodeVersion = JavaVersion.toVersion("${buildJavaVersion}")
+        vcs = 'Git'
+    }
+}
+
+
+allprojects {
+    apply plugin: 'idea'
+
+    idea {
+        module {
+            jdkName = "${buildJavaVersion}"
+            languageLevel = new IdeaLanguageLevel(JavaVersion.toVersion("${buildJavaVersion}"))
+            targetBytecodeVersion = JavaVersion.toVersion("${buildJavaVersion}")
+        }
+    }
+}

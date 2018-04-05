@@ -1,0 +1,5 @@
+dependencies {
+    compile 'commons-codec:commons-codec'
+    compile 'org.slf4j:slf4j-api'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}

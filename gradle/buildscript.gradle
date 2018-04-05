@@ -1,0 +1,25 @@
+// 必须放到build.gradle里面
+
+buildscript {
+    dependencies {
+        // WARN: 这里的依赖请慎重添加，这里应该至添加被gradle插件用到的依赖，项目依赖不能定义在这儿
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "org.springframework:springloaded:1.2.0.RELEASE"
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+        classpath "net.saliman:gradle-cobertura-plugin:2.4.0"
+        classpath "com.gradle:build-scan-plugin:1.4"
+    }
+    repositories {
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        jcenter()
+        maven { url 'http://repo.spring.io/plugins-release' }
+        maven { url 'https://plugins.gradle.org/m2/' }
+    }
+}
+
+allprojects {
+    ext {
+        sourceCompatibility = "${buildJavaVersion}"
+        targetCompatibility = "${buildJavaVersion}"
+    }
+}
