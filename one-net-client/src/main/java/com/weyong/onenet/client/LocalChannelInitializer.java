@@ -1,5 +1,6 @@
-package com.weyong.onenet.initializer;
+package com.weyong.onenet.client;
 
+import com.weyong.onenet.client.clientSession.ClientSession;
 import com.weyong.onenet.handler.LocalInboudHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -11,16 +12,16 @@ import io.netty.handler.codec.bytes.ByteArrayEncoder;
  */
 public class LocalChannelInitializer  extends ChannelInitializer<SocketChannel> {
     public static final String LOCAL_RESPONSE_HANDLER = "LocalResponseHandler";
-    private String outsideChannelId;
+    private ClientSession clientSession;
 
-    public  LocalChannelInitializer(String channelId){
-        this.outsideChannelId = channelId;
+    public  LocalChannelInitializer(ClientSession clientSession){
+        this.clientSession = clientSession;
     }
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline p = ch.pipeline();
-        p.addLast(LOCAL_RESPONSE_HANDLER,new LocalInboudHandler(outsideChannelId))
+        p.addLast(LOCAL_RESPONSE_HANDLER,new LocalInboudHandler(clientSession))
                 .addLast(new ByteArrayEncoder());
     }
 }

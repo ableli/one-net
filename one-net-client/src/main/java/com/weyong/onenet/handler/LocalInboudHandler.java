@@ -1,9 +1,9 @@
 package com.weyong.onenet.handler;
 
+import com.weyong.onenet.client.OneNetInboundHandler;
+import com.weyong.onenet.client.clientSession.ClientSession;
 import com.weyong.zip.ByteZipUtil;
 import com.weyong.aes.WXBizMsgCrypt;
-import com.weyong.onenet.OneChannelRenewTask;
-import com.weyong.onenet.OnenetClient;
 import com.weyong.onenet.dto.DataTransfer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,10 +21,10 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class LocalInboudHandler extends ChannelInboundHandlerAdapter {
-    private String outsideChannelId;
+    private ClientSession clientSession;
 
-    public LocalInboudHandler(String outChannelId){
-        this.outsideChannelId = outChannelId;
+    public LocalInboudHandler(ClientSession clientSession){
+        this.clientSession = clientSession;
     }
 
     //Max frame size is 1048576 leave 1k byte to class info.
@@ -40,26 +40,21 @@ public class LocalInboudHandler extends ChannelInboundHandlerAdapter {
             DataTransfer dt = new DataTransfer();
             byte[] encryptData = WXBizMsgCrypt.getEncryptBytes(ByteZipUtil.gzip(currentData));
             dt.setData(encryptData);
-            dt.setSessionId(outsideChannelId);
-            OnenetClient.getOneChannel().writeAndFlush(dt);
-            OneChannelRenewTask.lastHeartBeatTime= new Date();
+            dt.setSessionId(clientSession.getSessionId());
+            clientSession.getOneNetChannel().writeAndFlush(dt);
         }
         in.release();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        OneInboundHandler.localSocketMap.remove(outsideChannelId);
-        OnenetClient.getOneChannel().writeAndFlush(new DataTransfer(outsideChannelId,DataTransfer.OP_TYPE_CLOSE));
-        OnenetClient.removeFromPool(ctx.channel());
+        clientSession.close();
         ctx.close();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        OneInboundHandler.localSocketMap.remove(outsideChannelId);
-        OnenetClient.getOneChannel().writeAndFlush(new DataTransfer(outsideChannelId,DataTransfer.OP_TYPE_CLOSE));
-        OnenetClient.removeFromPool(ctx.channel());
+        clientSession.close();
         super.channelInactive(ctx);
     }
 }

@@ -1,24 +1,28 @@
 package com.weyong.onenet.client;
 
-import com.weyong.onenet.OnenetClient;
 import com.weyong.onenet.handler.LocalInboudHandler;
-import com.weyong.onenet.initializer.LocalChannelInitializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
+
+import java.util.function.Supplier;
 
 /**
  * Created by haoli on 2017/4/17.
  */
 @Slf4j
 public class LocalChannelFactory  extends BasePooledObjectFactory<Channel> {
+    private Supplier<Channel> channelSupplier;
+    public LocalChannelFactory(Supplier<Channel> supplier) {
+        this.channelSupplier = supplier;
+    }
+
     @Override
     public Channel create() throws Exception {
-       return OnenetClient.getLocalChannel(StringUtils.EMPTY);
+       return channelSupplier.get();
     }
 
     @Override
@@ -38,6 +42,6 @@ public class LocalChannelFactory  extends BasePooledObjectFactory<Channel> {
     @Override
     public void passivateObject(PooledObject<Channel> pooledObject) {
         ChannelHandler handler =  pooledObject.getObject().pipeline().get(LocalChannelInitializer.LOCAL_RESPONSE_HANDLER);
-        ((LocalInboudHandler)handler).setOutsideChannelId(StringUtils.EMPTY);
+        ((LocalInboudHandler)handler).setClientSession(null);
     }
 }

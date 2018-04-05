@@ -1,7 +1,5 @@
 package com.weyong.onenet.handler;
 
-import com.weyong.onenet.OneChannelRenewTask;
-import com.weyong.onenet.OnenetClient;
 import com.weyong.onenet.dto.DataTransfer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.serialization.ObjectEncoder;
