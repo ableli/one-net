@@ -5,7 +5,7 @@
             <!-- daily rollover -->
             <fileNamePattern>one-net-server.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>10</maxHistory>
-            <totalSizeCap>100MB</totalSizeCap>
+            <totalSizeCap>10MB</totalSizeCap>
 
         </rollingPolicy>
         <encoder>

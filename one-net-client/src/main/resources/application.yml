@@ -1,0 +1,26 @@
+server:
+  port: 8081
+  tomcat:
+    uri-encoding: UTF-8
+logging:
+  level:
+    root: error
+    org.springframework.boot: error
+    com.weyong: debug
+oneNetClient:
+  serverName: localhost
+  serverConfigs
+    -
+      hostName: localhost
+      oneNetPort: 9527
+      contexts:
+        -
+          contextName: weyong
+          localhost: localhost
+          port: 80
+          localPool: false
+        -
+          contextName: mstsc
+          localhost: 3386
+          port: true
+          localPool: false

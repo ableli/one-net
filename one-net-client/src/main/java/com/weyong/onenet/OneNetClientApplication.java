@@ -2,7 +2,6 @@ package com.weyong.onenet;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -10,9 +9,9 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @EnableAutoConfiguration
 @ComponentScan
-public class OneNetServerApplication {
+public class OneNetClientApplication {
     public static void main(String... args) throws Exception {
-        SpringApplication application = new SpringApplication(OneNetServerApplication.class);
+        SpringApplication application = new SpringApplication(OneNetClientApplication.class);
         application.run();
     }
 }

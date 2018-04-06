@@ -2,6 +2,7 @@ package com.weyong.onenet.client.config;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 
@@ -10,8 +11,7 @@ import java.util.List;
  */
 @Slf4j
 @Data
-public class ServerConfig {
-    private String serverName;
+public class OnenetClientServerConfig {
     private String hostName;
     private Integer oneNetPort;
     private List<OneNetClientContextConfig> oneNetClientContextConfigs;

@@ -7,7 +7,7 @@ import lombok.Data;
  */
 @Data
 public class OneNetClientContextConfig {
-    private String oneNetName;
+    private String contextName;
     private String localhost;
     private Integer port;
     private boolean localPool;

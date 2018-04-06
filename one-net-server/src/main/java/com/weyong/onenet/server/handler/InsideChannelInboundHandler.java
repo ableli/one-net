@@ -10,9 +10,11 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiFunction;
 
 /**
  * Author by haoli on 2017/4/12.
@@ -46,24 +48,28 @@ public class InsideChannelInboundHandler extends SimpleChannelInboundHandler<Dat
                 ctx.channel().writeAndFlush(msg);
                 break;
             case DataTransfer.OP_TYPE_NEW:
-                oneNetServer.getContexts().compute(msg.getOneNetName(),(key,oneNetServer)->{
-                    if(oneNetServer==null){
-                        ctx.channel().writeAndFlush(new DataTransfer(DataTransfer.OP_TYPE_ERROR,String.format("OneNet %s's config not found in Server", key).getBytes()));
-                    }else{
-                        Channel oldChannel = this.oneNetServer.getOneNetConnectionManager().getOneNetChannels().replace(key, ctx.channel());
-                        if(oldChannel!=null){
-                            oldChannel.close();
-                        }
+                if(CollectionUtils.isEmpty(msg.getContextNames())){
+                    ctx.close();
+                    break;
+                }
+                msg.getContextNames().stream().forEach((contextName)-> {
+                    if (!oneNetServer.getContexts().containsKey(contextName)) {
+                        ctx.channel().writeAndFlush(new DataTransfer(DataTransfer.OP_TYPE_ERROR,
+                                String.format("OneNet %s's config not found in Server", contextName).getBytes()));
+                    } else {
+                        msg.getContextNames().remove(contextName);
                     }
-                    return oneNetServer;
                 });
+                if (CollectionUtils.containsAny(Collections.list(oneNetServer.getContexts().keys()), msg.getContextNames())) {
+                   this.oneNetServer.getOneNetConnectionManager().refreshSessionChannel(msg.getClientName(),msg.getContextNames(),ctx.channel());
+                }
                 break;
             case DataTransfer.OP_TYPE_CLOSE:
                 if(oneNetServerContext!=null){
                     oneNetServerContext.closeSession(msg.getSessionId());
                 }
                 break;
-            default:
+            case DataTransfer.OP_TYPE_DATA:
                 if(oneNetServerContext==null){
                     return;
                 }

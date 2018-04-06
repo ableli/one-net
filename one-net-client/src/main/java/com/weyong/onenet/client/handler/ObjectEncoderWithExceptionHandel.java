@@ -1,6 +1,5 @@
-package com.weyong.onenet.handler;
+package com.weyong.onenet.client.handler;
 
-import com.weyong.onenet.dto.DataTransfer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import lombok.extern.slf4j.Slf4j;

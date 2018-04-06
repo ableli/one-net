@@ -1,7 +1,7 @@
 package com.weyong.onenet.client.clientSession;
 
 import com.weyong.onenet.client.OneNetClientContext;
-import com.weyong.onenet.client.OneNetInboundHandler;
+import com.weyong.onenet.client.handler.OneNetInboundHandler;
 import com.weyong.onenet.dto.DataTransfer;
 import io.netty.channel.Channel;
 import lombok.AllArgsConstructor;

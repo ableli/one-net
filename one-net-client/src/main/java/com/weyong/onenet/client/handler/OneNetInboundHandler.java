@@ -1,18 +1,15 @@
-package com.weyong.onenet.client;
+package com.weyong.onenet.client.handler;
 
+import com.weyong.onenet.client.OneNetClientContext;
 import com.weyong.onenet.client.clientSession.ClientSession;
 import com.weyong.onenet.client.serverSession.ServerSession;
 import com.weyong.onenet.dto.DataTransfer;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * Created by hao.li on 2017/4/13.
@@ -35,7 +32,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<DataTransf
         if(DataTransfer.OP_TYPE_HEART_BEAT == msg.getOpType()){
             serverSession.setLastHeartbeatTime(new Date());
         }else {
-            String oneNetName = msg.getOneNetName();
+            String oneNetName = msg.getContextName();
             Long sessionId = msg.getSessionId();
             if (StringUtils.isNotEmpty(oneNetName) && sessionId != null) {
                 OneNetClientContext context = serverSession.getOneNetClientContextMap().get(oneNetName);

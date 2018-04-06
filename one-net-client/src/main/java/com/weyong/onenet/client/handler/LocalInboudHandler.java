@@ -1,6 +1,5 @@
-package com.weyong.onenet.handler;
+package com.weyong.onenet.client.handler;
 
-import com.weyong.onenet.client.OneNetInboundHandler;
 import com.weyong.onenet.client.clientSession.ClientSession;
 import com.weyong.zip.ByteZipUtil;
 import com.weyong.aes.WXBizMsgCrypt;
@@ -11,8 +10,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Date;
 
 /**
  * Created by hao.li on 2017/4/13.

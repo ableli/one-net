@@ -3,7 +3,12 @@ package com.weyong.onenet.server;
 import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -12,5 +17,42 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Data
 public class OneNetConnectionManager {
-    private ConcurrentHashMap<String, Channel> oneNetChannels = new ConcurrentHashMap<>();
+    private Random random = new Random(1);
+    private ConcurrentHashMap<String, List<ClientSession>> contextNameSessionMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ClientSession> oneNetClientSessionMap = new ConcurrentHashMap<>();
+
+    public Channel getAvailableChannel(String contextName) {
+        if(!contextNameSessionMap.containsKey(contextName)){
+            return null;
+        }
+        List<ClientSession>  sessions = contextNameSessionMap.get(contextName);
+        if(CollectionUtils.isEmpty(sessions)){
+            return null;
+        }
+        Channel selectedChannel = null;
+        while(selectedChannel == null && !CollectionUtils.isEmpty(sessions)){
+            int selectedOne = random.nextInt()%sessions.size();
+            ClientSession clientSession =  sessions.get(selectedOne);
+            if(clientSession!=null && clientSession.getClientChannel()!=null){
+                selectedChannel = clientSession .getClientChannel();
+            }else{
+                sessions.remove(clientSession);
+            }
+        }
+        return selectedChannel;
+    }
+
+    public void refreshSessionChannel(String clientName, List<String> contextNames, Channel channel) {
+       ClientSession clientSession = oneNetClientSessionMap.computeIfAbsent(clientName,(name)-> new ClientSession(name) );
+        if(clientSession.getClientChannel() != null){
+            clientSession.getClientChannel().close();
+        }
+        clientSession.setClientChannel(channel);
+        contextNames.stream().forEach((contextName)->{
+            List<ClientSession> sessions = contextNameSessionMap.computeIfAbsent(contextName,(name)->new LinkedList<ClientSession>());
+            if(!sessions.contains(clientSession)){
+                sessions.add(clientSession);
+            }
+        });
+    }
 }

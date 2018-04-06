@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by hao.li on 2017/4/12.
@@ -17,7 +18,11 @@ public class DataTransfer implements Serializable{
     public static final short OP_TYPE_HEART_BEAT = 2;
     public static final short OP_TYPE_CLOSE = 3;
     public static final short OP_TYPE_ERROR = 4;
-    private String oneNetName;
+    public static final short OP_TYPE_DATA = 5;
+    private String contextName;
+    private List<String> contextNames;
+    private String clientName;
+    private String serverKey;
     private long sessionId;
     private short opType;
     private byte[] data;
