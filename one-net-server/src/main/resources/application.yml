@@ -13,7 +13,7 @@ oneNetServer:
   contexts:
     -
       contextName: weyong
-      internetPort: 80
+      internetPort: 83
       zip: true
       aes: false
     -

@@ -2,10 +2,10 @@ package com.weyong.onenet.server.context;
 
 import com.weyong.onenet.server.OneNetServer;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
-import com.weyong.onenet.server.context.session.OneNetSession;
+import com.weyong.onenet.server.handler.InternetChannelInitializer;
+import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -30,7 +30,7 @@ public class OneNetServerContext {
         this.oneNetServer = oneNetServer;
         this.oneNetServerContextConfig = oneNetServerContextConfig;
         outsideBootstrap.group(oneNetServer.getBossGroup(),oneNetServer.getWorkerGroup()).channel(NioServerSocketChannel.class)
-                .childHandler(new OneNetInternetChannelInitializer(this))
+                .childHandler(new InternetChannelInitializer(this))
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
         try {
@@ -45,10 +45,6 @@ public class OneNetServerContext {
         }
     }
 
-    public OneNetSession removeSession(Long sessionId) {
-        return oneNetSessions.remove(sessionId);
-    }
-
     public OneNetSession getSession(Long sessionId) {
         return oneNetSessions.get(sessionId);
     }
@@ -57,11 +53,5 @@ public class OneNetServerContext {
        OneNetSession oneNetSession = new OneNetSession(this, ch, oneNetChannel);
        oneNetSessions.put(oneNetSession.getSessionId(), oneNetSession);
        return oneNetSession;
-    }
-
-    public void closeSession(Long sessionId) {
-        if(sessionId != null && oneNetSessions.containsKey(sessionId)){
-            oneNetSessions.remove(sessionId).close(true);
-        }
     }
 }

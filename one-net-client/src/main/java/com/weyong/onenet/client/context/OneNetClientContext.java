@@ -1,9 +1,11 @@
-package com.weyong.onenet.client;
+package com.weyong.onenet.client.context;
 
-import com.weyong.onenet.client.clientSession.ClientSession;
+import com.weyong.onenet.client.OneNetClient;
 import com.weyong.onenet.client.config.OneNetClientContextConfig;
+import com.weyong.onenet.client.handler.LocalChannelFactory;
 import com.weyong.onenet.client.handler.LocalChannelInitializer;
 import com.weyong.onenet.client.handler.LocalInboudHandler;
+import com.weyong.onenet.client.session.ClientSession;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import lombok.Data;
@@ -93,7 +95,4 @@ public class OneNetClientContext {
         }
     }
 
-    public void removeSession(Long sessionId) {
-
-    }
 }

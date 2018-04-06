@@ -9,7 +9,7 @@ logging:
     com.weyong: debug
 oneNetClient:
   serverName: localhost
-  serverConfigs
+  serverConfigs:
     -
       hostName: localhost
       oneNetPort: 9527
@@ -17,10 +17,10 @@ oneNetClient:
         -
           contextName: weyong
           localhost: localhost
-          port: 80
+          port: 88
           localPool: false
         -
           contextName: mstsc
-          localhost: 3386
-          port: true
+          localhost: localhost
+          port: 3386
           localPool: false

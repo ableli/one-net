@@ -23,13 +23,14 @@ public class DataTransfer implements Serializable{
     private List<String> contextNames;
     private String clientName;
     private String serverKey;
-    private long sessionId;
-    private short opType;
+    private Long sessionId;
+    private Short opType;
     private byte[] data;
-    private boolean zip = false;
-    private boolean aes = false;
+    private Boolean zip = false;
+    private Boolean aes = false;
 
-    public DataTransfer(Long sessionId, short opType){
+    public DataTransfer(String contextName ,Long sessionId, short opType){
+        this.contextName = contextName;
         this.sessionId = sessionId;
         this.opType = opType;
     }

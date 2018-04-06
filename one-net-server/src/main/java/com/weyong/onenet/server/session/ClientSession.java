@@ -1,4 +1,4 @@
-package com.weyong.onenet.server;
+package com.weyong.onenet.server.session;
 
 import io.netty.channel.Channel;
 import lombok.Data;

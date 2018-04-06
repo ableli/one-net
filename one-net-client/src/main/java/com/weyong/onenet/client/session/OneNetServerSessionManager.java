@@ -1,18 +1,18 @@
-package com.weyong.onenet.client.serverSession;
+package com.weyong.onenet.client.session;
 
 import com.weyong.onenet.client.OneNetClient;
 import com.weyong.onenet.client.config.OnenetClientServerConfig;
-import com.weyong.onenet.dto.DataTransfer;
 import com.weyong.onenet.client.handler.OneNetChannelInitializer;
+import com.weyong.onenet.dto.DataTransfer;
 import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Created by haoli on 2018/4/5.
@@ -22,15 +22,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class OneNetServerSessionManager {
     private ConcurrentHashMap<String, ServerSession> oneNetServerSessions = new ConcurrentHashMap<>();
-
-    @Autowired
-    OneNetClient oneNetClient;
+    private String clientName;
 
     @Scheduled(fixedRate = 2000)
     private void heartbeat(){
         oneNetServerSessions.values().stream().forEach(serverSession -> {
             if(serverSession.getLastHeartbeatTime()==null){
                 createServerSession(serverSession);
+                heatrbeatOneChannel(serverSession);
                 return;
             }
             Calendar lastHeartBeatTimeCondition = Calendar.getInstance();
@@ -49,7 +48,7 @@ public class OneNetServerSessionManager {
             DataTransfer dt = new DataTransfer();
             dt.setOpType(DataTransfer.OP_TYPE_HEART_BEAT);
             serverSession.getServerChannel().writeAndFlush(dt);
-            log.debug(String.format("Heartbeat server session %s:%d",
+            log.info(String.format("Heartbeat server session %s:%d",
                     serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort()));
         }catch (Exception ex) {
             log.error(String.format("Heartbeat server session %s:%d meet ex , and  it is :%s",
@@ -66,6 +65,9 @@ public class OneNetServerSessionManager {
             Channel socketChannel = OneNetClient.createChannel(onenetClientServerConfig.getHostName(), onenetClientServerConfig.getOneNetPort(), new OneNetChannelInitializer(serverSession));
             DataTransfer dt = new DataTransfer();
             dt.setOpType(DataTransfer.OP_TYPE_NEW);
+            dt.setClientName(clientName);
+            dt.setContextNames(serverSession.getOnenetClientServerConfig().getContexts().stream()
+            .map((oneNetClientContextConfig -> oneNetClientContextConfig.getContextName())).collect(Collectors.toList()));
             socketChannel.writeAndFlush(dt);
             serverSession.setServerChannel(socketChannel);
             log.info(String.format("Server session %s:%d established",

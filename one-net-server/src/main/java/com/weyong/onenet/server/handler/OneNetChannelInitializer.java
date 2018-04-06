@@ -1,6 +1,6 @@
-package com.weyong.onenet.server;
+package com.weyong.onenet.server.handler;
 
-import com.weyong.onenet.server.handler.InsideChannelInboundHandler;
+import com.weyong.onenet.server.OneNetServer;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
@@ -23,6 +23,6 @@ public class OneNetChannelInitializer extends ChannelInitializer<SocketChannel> 
         ch.pipeline()
                 .addLast(new ObjectEncoder())
                 .addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(this.getClass().getClassLoader())))
-        .addLast(new InsideChannelInboundHandler(this.oneNetServer));
+        .addLast(new OneNetChannelInboundHandler(this.oneNetServer));
     }
 }

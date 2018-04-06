@@ -1,7 +1,7 @@
-package com.weyong.onenet.server.context;
+package com.weyong.onenet.server.handler;
 
-import com.weyong.onenet.server.context.handler.InternetChannelInboundHandler;
-import com.weyong.onenet.server.context.session.OneNetSession;
+import com.weyong.onenet.server.context.OneNetServerContext;
+import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
@@ -12,10 +12,10 @@ import lombok.extern.slf4j.Slf4j;
  * Created by hao.li on 2017/4/12.
  */
 @Slf4j
-public class OneNetInternetChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class InternetChannelInitializer extends ChannelInitializer<SocketChannel> {
     private OneNetServerContext oneNetServerContext;
 
-    public OneNetInternetChannelInitializer(OneNetServerContext oneNetServerContext){
+    public InternetChannelInitializer(OneNetServerContext oneNetServerContext){
         this.oneNetServerContext = oneNetServerContext;
     }
     @Override
@@ -27,6 +27,7 @@ public class OneNetInternetChannelInitializer extends ChannelInitializer<SocketC
             ch.close();
         }else {
             OneNetSession oneNetSession =oneNetServerContext.createSession(ch ,oneNetChannel);
+            oneNetSession.setOneNetServerContext(oneNetServerContext);
             ch.pipeline()
                     .addLast(new InternetChannelInboundHandler(oneNetSession))
                     .addLast(new ByteArrayEncoder());

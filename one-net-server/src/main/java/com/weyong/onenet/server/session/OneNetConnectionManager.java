@@ -1,15 +1,14 @@
-package com.weyong.onenet.server;
+package com.weyong.onenet.server.session;
 
 import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by haoli on 2018/4/5.
@@ -17,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Data
 public class OneNetConnectionManager {
-    private Random random = new Random(1);
+    private AtomicInteger random = new AtomicInteger(1);
     private ConcurrentHashMap<String, List<ClientSession>> contextNameSessionMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, ClientSession> oneNetClientSessionMap = new ConcurrentHashMap<>();
 
@@ -31,7 +30,7 @@ public class OneNetConnectionManager {
         }
         Channel selectedChannel = null;
         while(selectedChannel == null && !CollectionUtils.isEmpty(sessions)){
-            int selectedOne = random.nextInt()%sessions.size();
+            int selectedOne = random.incrementAndGet()%sessions.size();
             ClientSession clientSession =  sessions.get(selectedOne);
             if(clientSession!=null && clientSession.getClientChannel()!=null){
                 selectedChannel = clientSession .getClientChannel();
@@ -45,12 +44,14 @@ public class OneNetConnectionManager {
     public void refreshSessionChannel(String clientName, List<String> contextNames, Channel channel) {
        ClientSession clientSession = oneNetClientSessionMap.computeIfAbsent(clientName,(name)-> new ClientSession(name) );
         if(clientSession.getClientChannel() != null){
+            log.info(String.format("Client session %s renew",clientSession.getClientName()));
             clientSession.getClientChannel().close();
         }
         clientSession.setClientChannel(channel);
         contextNames.stream().forEach((contextName)->{
             List<ClientSession> sessions = contextNameSessionMap.computeIfAbsent(contextName,(name)->new LinkedList<ClientSession>());
             if(!sessions.contains(clientSession)){
+                log.info(String.format("Client context %s -> %s added.",clientName ,contextName));
                 sessions.add(clientSession);
             }
         });
