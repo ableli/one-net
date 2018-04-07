@@ -56,4 +56,11 @@ public class OneNetConnectionManager {
             }
         });
     }
+
+    public void removeOneNetSession(String clientName) {
+        oneNetClientSessionMap.computeIfPresent(clientName,(client,clientSession)->{
+            clientSession.setClientChannel(null);
+            return null;
+        });
+    }
 }

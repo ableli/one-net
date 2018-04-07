@@ -7,6 +7,7 @@ logging:
     root: error
     org.springframework.boot: error
     com.weyong: debug
+    io.netty.handler.logging: debug
 oneNetClient:
   serverName: localhost
   serverConfigs:

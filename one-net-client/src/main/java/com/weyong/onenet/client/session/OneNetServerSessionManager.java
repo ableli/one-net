@@ -3,7 +3,8 @@ package com.weyong.onenet.client.session;
 import com.weyong.onenet.client.OneNetClient;
 import com.weyong.onenet.client.config.OnenetClientServerConfig;
 import com.weyong.onenet.client.handler.OneNetChannelInitializer;
-import com.weyong.onenet.dto.DataTransfer;
+import com.weyong.onenet.dto.OneNetInitialPackage;
+import com.weyong.onenet.dto.HeartbeatPackage;
 import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,7 @@ public class OneNetServerSessionManager {
                 return;
             }
             Calendar lastHeartBeatTimeCondition = Calendar.getInstance();
-            lastHeartBeatTimeCondition.add(Calendar.SECOND,-5);
+            lastHeartBeatTimeCondition.add(Calendar.SECOND,-100);
             if(lastHeartBeatTimeCondition.getTime().after(serverSession.getLastHeartbeatTime())) {
                 log.info(String.format("Server Session %s:%d inactive.Try to renew.",
                         serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort()));
@@ -45,10 +46,8 @@ public class OneNetServerSessionManager {
 
     private void heatrbeatOneChannel(ServerSession serverSession) {
         try {
-            DataTransfer dt = new DataTransfer();
-            dt.setOpType(DataTransfer.OP_TYPE_HEART_BEAT);
-            serverSession.getServerChannel().writeAndFlush(dt);
-            log.info(String.format("Heartbeat server session %s:%d",
+            serverSession.getServerChannel().writeAndFlush(HeartbeatPackage.instance());
+            log.debug(String.format("Heartbeat server session %s:%d",
                     serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort()));
         }catch (Exception ex) {
             log.error(String.format("Heartbeat server session %s:%d meet ex , and  it is :%s",
@@ -63,8 +62,7 @@ public class OneNetServerSessionManager {
                     serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort()));
             OnenetClientServerConfig onenetClientServerConfig = serverSession.getOnenetClientServerConfig();
             Channel socketChannel = OneNetClient.createChannel(onenetClientServerConfig.getHostName(), onenetClientServerConfig.getOneNetPort(), new OneNetChannelInitializer(serverSession));
-            DataTransfer dt = new DataTransfer();
-            dt.setOpType(DataTransfer.OP_TYPE_NEW);
+            OneNetInitialPackage dt = new OneNetInitialPackage();
             dt.setClientName(clientName);
             dt.setContextNames(serverSession.getOnenetClientServerConfig().getContexts().stream()
             .map((oneNetClientContextConfig -> oneNetClientContextConfig.getContextName())).collect(Collectors.toList()));

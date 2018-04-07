@@ -1,5 +1,9 @@
 dependencies {
     compile 'commons-codec:commons-codec'
+    compile 'org.apache.commons:commons-lang3'
+    compile 'io.netty:netty-all'
     compile 'org.slf4j:slf4j-api'
+    compile 'ch.qos.logback:logback-classic'
+    compile 'org.springframework.boot:spring-boot-starter-web'
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }

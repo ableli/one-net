@@ -1,6 +1,7 @@
 package com.weyong.onenet.server.handler;
 
-import com.weyong.onenet.dto.DataTransfer;
+import com.weyong.onenet.dto.BasePackage;
+import com.weyong.onenet.dto.DataPackage;
 import com.weyong.onenet.server.session.OneNetSession;
 import com.weyong.zip.ByteZipUtil;
 import io.netty.buffer.ByteBuf;
@@ -33,12 +34,8 @@ public class InternetChannelInboundHandler extends ChannelInboundHandlerAdapter 
                 int length = frameSize < in.readableBytes() ? frameSize : in.readableBytes();
                 byte[] currentData = new byte[length];
                 in.readBytes(currentData, 0, length);
-                DataTransfer dt = new DataTransfer();
-                dt.setContextName(oneNetSession.getContextName());
-                dt.setOpType(DataTransfer.OP_TYPE_DATA);
-                dt.setData(ByteZipUtil.gzip(currentData));
-                dt.setSessionId(oneNetSession.getSessionId());
-                log.info("Internet data send to OneNet.");
+                DataPackage dt = new DataPackage(oneNetSession.getContextName(),
+                        oneNetSession.getSessionId(),currentData,true,false);
                 oneNetSession.getOneNetChannel().writeAndFlush(dt);
 
             }

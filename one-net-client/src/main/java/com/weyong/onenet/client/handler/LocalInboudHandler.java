@@ -1,7 +1,8 @@
 package com.weyong.onenet.client.handler;
 
 import com.weyong.onenet.client.session.ClientSession;
-import com.weyong.onenet.dto.DataTransfer;
+import com.weyong.onenet.dto.BasePackage;
+import com.weyong.onenet.dto.DataPackage;
 import com.weyong.zip.ByteZipUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,6 +10,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Date;
 
 /**
  * Created by hao.li on 2017/4/13.
@@ -33,15 +36,11 @@ public class LocalInboudHandler extends ChannelInboundHandlerAdapter {
                 int length = frameSize < in.readableBytes() ? frameSize : in.readableBytes();
                 byte[] currentData = new byte[length];
                 in.readBytes(currentData, 0, length);
-                DataTransfer dt = new DataTransfer();
-                dt.setContextName(clientSession.getContextName());
-                dt.setOpType(DataTransfer.OP_TYPE_DATA);
-               // byte[] encryptData = WXBizMsgCrypt.getEncryptBytes(ByteZipUtil.gzip(currentData));
-                byte[] encryptData =ByteZipUtil.gzip(currentData);
-                dt.setData(encryptData);
-                dt.setSessionId(clientSession.getSessionId());
-                clientSession.getOneNetChannel().writeAndFlush(dt);
-                log.info("Local data to OneNet.");
+                DataPackage dt = new DataPackage(clientSession.getContextName(),
+                        clientSession.getSessionId(),
+                        currentData,true,false);
+                clientSession.getServerSession().getServerChannel().writeAndFlush(dt);
+                clientSession.getServerSession().setLastHeartbeatTime(new Date());
             }
             in.release();
     }
