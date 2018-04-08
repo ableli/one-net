@@ -8,6 +8,7 @@ import com.weyong.onenet.client.handler.LocalInboudHandler;
 import com.weyong.onenet.client.session.ClientSession;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
+import io.netty.handler.traffic.ChannelTrafficShapingHandler;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.ObjectPool;
@@ -26,6 +27,9 @@ public class OneNetClientContext {
     private  ObjectPool<Channel> localPool;
     private OneNetClientContextConfig oneNetClientContextConfig;
     private Map<Long,ClientSession> sessionMap = new HashMap<>();
+    private boolean zip;
+    private boolean aes;
+    private int kBps;
 
     public OneNetClientContext(OneNetClientContextConfig oneNetClientContextConfig) {
         this.oneNetClientContextConfig = oneNetClientContextConfig;
@@ -66,6 +70,10 @@ public class OneNetClientContext {
             }
             ChannelHandler handler = channel.pipeline().get(LocalChannelInitializer.LOCAL_RESPONSE_HANDLER);
             ((LocalInboudHandler)handler).setClientSession(clientSession);
+            ChannelTrafficShapingHandler channelTrafficShapingHandler =
+                    (ChannelTrafficShapingHandler)channel.pipeline().get(LocalChannelInitializer.CHANNEL_TRAFFIC_HANDLER);
+            channelTrafficShapingHandler.setReadLimit(clientSession.getOneNetClientContext().kBps*1024);
+            channelTrafficShapingHandler.setWriteLimit(clientSession.getOneNetClientContext().kBps*1024);
             log.debug(localPool.getNumActive()+"-"+localPool.getNumIdle());
         }
         return channel;

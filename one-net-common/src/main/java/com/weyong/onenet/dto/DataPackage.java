@@ -61,11 +61,11 @@ public class DataPackage extends BasePackage
     protected void fillBody(ByteBuffer byteBuffer) {
         stringEncoding(this.getContextName(),byteBuffer);
         byteBuffer.putLong(getSessionId());
-        int boolValues = zip?1:0;
-        boolValues  = boolValues << 1;
-        boolValues = aes ? boolValues++:boolValues;
+        int boolValues = getBoolValues(zip,aes);
         byteBuffer.put((byte)boolValues);
         byteBuffer.putInt(data.length);
         byteBuffer.put(data);
     }
+
+
 }

@@ -14,11 +14,12 @@ import java.nio.*;
 @Data
 public abstract class BasePackage implements Serializable{
     ThreadLocal<ByteBuffer> byteBufferThreadLocal = new ThreadLocal<>();
-    public static final byte INITIAL = 1;
+    public static final byte INITIAL_REQUEST = 1;
     public static final byte HEART_BEAT = 2;
     public static final byte INVALID_SESSION = 3;
     public static final byte MESSAGE = 4;
     public static final byte DATA = 5;
+    public static final byte INITIAL_RESPONSE = 6;
     private Byte opType;
     private String contextName;
     private Long sessionId;
@@ -44,8 +45,8 @@ public abstract class BasePackage implements Serializable{
     public static BasePackage fromBytes(ByteBuf byteBuf){
        byte typeByte = byteBuf.readByte();
        switch(typeByte){
-           case INITIAL:
-               return new InitialPackage(byteBuf);
+           case INITIAL_REQUEST:
+               return new InitialRequestPackage(byteBuf);
            case HEART_BEAT:
                return HeartbeatPackage.instance();
            case INVALID_SESSION:
@@ -54,6 +55,8 @@ public abstract class BasePackage implements Serializable{
                return new MessagePackage(byteBuf);
            case DATA:
                return new DataPackage(byteBuf);
+           case INITIAL_RESPONSE:
+               return new InitialResponsePackage(byteBuf);
        }
        return null;
     }
@@ -74,5 +77,12 @@ public abstract class BasePackage implements Serializable{
         byte[] bytes = new byte[byteLength];
         byteBuf.readBytes(bytes,0,byteLength);
         return new String(bytes,Charsets.toCharset("UTF-8"));
+    }
+
+    protected int getBoolValues(boolean zip, boolean aes) {
+        int boolValues = zip?1:0;
+        boolValues  = boolValues << 1;
+        boolValues = aes ? boolValues++:boolValues;
+        return boolValues;
     }
 }

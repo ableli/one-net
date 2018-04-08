@@ -5,6 +5,7 @@ import com.weyong.onenet.client.session.ClientSession;
 import com.weyong.onenet.client.session.ServerSession;
 import com.weyong.onenet.dto.BasePackage;
 import com.weyong.onenet.dto.DataPackage;
+import com.weyong.onenet.dto.InitialResponsePackage;
 import com.weyong.onenet.dto.InvalidSessionPackage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -27,7 +28,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-
+        serverSession.invalidAllClientSessions();
     }
 
     @Override
@@ -35,6 +36,9 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
             switch (msg.getOpType()){
                 case  BasePackage.HEART_BEAT:
                     serverSession.setLastHeartbeatTime(new Date());
+                    break;
+                case  BasePackage.INITIAL_RESPONSE:
+                    serverSession.updateContextSettings((InitialResponsePackage)msg);
                     break;
                 case BasePackage.INVALID_SESSION:
                     String oneNetName = msg.getContextName();
@@ -54,6 +58,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
                                 newClientSession.setLocalChannel(context.getContextLocalChannel(newClientSession));
                                 return newClientSession;
                             }catch (Exception ex) {
+                                log.error(ex.getMessage());
                                 ctx.channel().writeAndFlush(
                                         new InvalidSessionPackage(
                                                 newClientSession.getContextName(),

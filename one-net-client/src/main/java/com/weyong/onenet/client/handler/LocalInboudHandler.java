@@ -39,10 +39,9 @@ public class LocalInboudHandler extends ChannelInboundHandlerAdapter {
                 DataPackage dt = new DataPackage(clientSession.getContextName(),
                         clientSession.getSessionId(),
                         currentData,
-                        clientSession.getOneNetClientContext().getOneNetClientContextConfig().isZip(),
-                        clientSession.getOneNetClientContext().getOneNetClientContextConfig().isAes());
+                        clientSession.getOneNetClientContext().isZip(),
+                        clientSession.getOneNetClientContext().isAes());
                 clientSession.getServerSession().getServerChannel().writeAndFlush(dt);
-                clientSession.getServerSession().setLastHeartbeatTime(new Date());
             }
             in.release();
     }

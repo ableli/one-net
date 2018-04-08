@@ -1,10 +1,8 @@
 package com.weyong.onenet.server.handler;
 
-import com.weyong.onenet.dto.BasePackage;
-import com.weyong.onenet.dto.InitialPackage;
-import com.weyong.onenet.dto.DataPackage;
-import com.weyong.onenet.dto.MessagePackage;
+import com.weyong.onenet.dto.*;
 import com.weyong.onenet.server.OneNetServer;
+import com.weyong.onenet.server.config.OneNetServerContextConfig;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.channel.Channel;
@@ -51,8 +49,8 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                 case BasePackage.HEART_BEAT:
                     ctx.channel().writeAndFlush(msg);
                     break;
-                case BasePackage.INITIAL:
-                    InitialPackage requestMsg = (InitialPackage) msg;
+                case BasePackage.INITIAL_REQUEST:
+                    InitialRequestPackage requestMsg = (InitialRequestPackage) msg;
                     if (CollectionUtils.isEmpty(requestMsg.getContextNames())) {
                         ctx.close();
                         break;
@@ -60,11 +58,15 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                     log.info(String.format("Client %s with contexts [%s] request connections.",
                             requestMsg.getClientName(), StringUtils.join(requestMsg.getContextNames(), ",")));
                     List<String> toRemoveContextName = new ArrayList<>();
+
                     requestMsg.getContextNames().stream().forEach((contextName) -> {
                         if (!oneNetServer.getContexts().containsKey(contextName)) {
                             ctx.channel().writeAndFlush(new MessagePackage(
                                     String.format("OneNet %s's config not found in Server", contextName)));
                             toRemoveContextName.add(contextName);
+                        }else{
+                            OneNetServerContextConfig config = oneNetServer.getContexts().get(contextName).getOneNetServerContextConfig();
+                            ctx.channel().writeAndFlush(new InitialResponsePackage(contextName,config.isZip(),config.isAes(),config.getKBps()));
                         }
                     });
                     requestMsg.getContextNames().removeAll(toRemoveContextName);
@@ -78,7 +80,10 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                 case BasePackage.INVALID_SESSION:
                     OneNetServerContext oneNetServerContext = oneNetServer.getContexts().get(msg.getContextName());
                     if (oneNetServerContext != null) {
-                        oneNetServerContext.getOneNetSessions().get(msg.getSessionId()).closeFromOneNet();
+                        OneNetSession session = oneNetServerContext.getOneNetSessions().get(msg.getSessionId());
+                        if(session != null) {
+                            session.closeFromOneNet();
+                        }
                     }
                     break;
                 case BasePackage.DATA:

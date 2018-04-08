@@ -14,16 +14,16 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class InitialPackage extends BasePackage {
+public class InitialRequestPackage extends BasePackage {
     private String clientName;
     private List<String> contextNames;
     private String serverKey;
-    public InitialPackage(){
-        super(BasePackage.INITIAL);
+    public InitialRequestPackage(){
+        super(BasePackage.INITIAL_REQUEST);
     }
 
-    public InitialPackage(ByteBuf byteBuf) {
-        super(BasePackage.INITIAL);
+    public InitialRequestPackage(ByteBuf byteBuf) {
+        super(BasePackage.INITIAL_REQUEST);
         this.setClientName(stringDecoding(byteBuf));
         this.setServerKey(stringDecoding(byteBuf));
         this.setContextNames(new ArrayList<>());

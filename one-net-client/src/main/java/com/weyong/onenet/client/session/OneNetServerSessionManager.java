@@ -3,7 +3,7 @@ package com.weyong.onenet.client.session;
 import com.weyong.onenet.client.OneNetClient;
 import com.weyong.onenet.client.config.OnenetClientServerConfig;
 import com.weyong.onenet.client.handler.OneNetChannelInitializer;
-import com.weyong.onenet.dto.InitialPackage;
+import com.weyong.onenet.dto.InitialRequestPackage;
 import com.weyong.onenet.dto.HeartbeatPackage;
 import io.netty.channel.Channel;
 import lombok.Data;
@@ -63,7 +63,7 @@ public class OneNetServerSessionManager {
                     serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort()));
             OnenetClientServerConfig onenetClientServerConfig = serverSession.getOnenetClientServerConfig();
             Channel socketChannel = OneNetClient.createChannel(onenetClientServerConfig.getHostName(), onenetClientServerConfig.getOneNetPort(), new OneNetChannelInitializer(serverSession));
-            InitialPackage dt = new InitialPackage();
+            InitialRequestPackage dt = new InitialRequestPackage();
             dt.setClientName(clientName);
             dt.setContextNames(serverSession.getOnenetClientServerConfig().getContexts().stream()
             .map((oneNetClientContextConfig -> oneNetClientContextConfig.getContextName())).collect(Collectors.toList()));

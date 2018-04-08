@@ -2,6 +2,7 @@ package com.weyong.onenet.client.session;
 
 import com.weyong.onenet.client.config.OnenetClientServerConfig;
 import com.weyong.onenet.client.context.OneNetClientContext;
+import com.weyong.onenet.dto.InitialResponsePackage;
 import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +22,30 @@ public class ServerSession {
     private OnenetClientServerConfig onenetClientServerConfig;
     private Map<String,OneNetClientContext> oneNetClientContextMap = new HashMap<>();
 
+
     public ServerSession(OnenetClientServerConfig onenetClientServerConfig) {
         this.onenetClientServerConfig = onenetClientServerConfig;
         onenetClientServerConfig.getContexts().forEach(oneNetClientContextConfig -> {
             oneNetClientContextMap.putIfAbsent(oneNetClientContextConfig.getContextName(),
                     new OneNetClientContext(oneNetClientContextConfig));
         });
+    }
+
+    public void updateContextSettings(InitialResponsePackage msg) {
+        oneNetClientContextMap.computeIfPresent(msg.getContextName(),(name ,oneNetClientContext)->{
+            oneNetClientContext.setZip(msg.isZip());
+            oneNetClientContext.setAes(msg.isAes());
+            oneNetClientContext.setKBps(msg.getKBps());
+            log.info(String.format("Update client context %s, zip %s, aes %s, kBps %d",
+                    msg.getContextName(),Boolean.valueOf(msg.isZip()).toString(),
+                    Boolean.valueOf(msg.isAes()).toString(),msg.getKBps()));
+            return oneNetClientContext;
+        });
+    }
+
+    public void invalidAllClientSessions() {
+        oneNetClientContextMap.values().stream().forEach((oneNetClientContext -> {
+            oneNetClientContext.getSessionMap().values().forEach((ClientSession::closeFromOneNet));
+        }));
     }
 }

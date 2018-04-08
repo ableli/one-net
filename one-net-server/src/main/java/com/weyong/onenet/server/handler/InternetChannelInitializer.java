@@ -6,6 +6,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
+import io.netty.handler.traffic.ChannelTrafficShapingHandler;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -28,7 +29,10 @@ public class InternetChannelInitializer extends ChannelInitializer<SocketChannel
         }else {
             OneNetSession oneNetSession =oneNetServerContext.createSession(ch ,oneNetChannel);
             oneNetSession.setOneNetServerContext(oneNetServerContext);
+            int bytePreSecond = oneNetServerContext.getOneNetServerContextConfig().getKBps()*1024;
             ch.pipeline()
+                    .addLast(new ChannelTrafficShapingHandler(bytePreSecond,
+                            bytePreSecond))
                     .addLast(new InternetChannelInboundHandler(oneNetSession))
                     .addLast(new ByteArrayEncoder());
         }

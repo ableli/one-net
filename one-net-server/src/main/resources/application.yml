@@ -17,8 +17,10 @@ oneNetServer:
       internetPort: 83
       zip: true
       aes: false
+      kBps: 200
     -
       contextName: mstsc
       internetPort: 56789
+      kBps: 200
       zip: true
       aes: false

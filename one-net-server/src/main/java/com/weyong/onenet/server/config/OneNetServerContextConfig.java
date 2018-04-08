@@ -13,4 +13,5 @@ public class OneNetServerContextConfig {
     private Integer internetPort;
     private boolean zip;
     private boolean aes;
+    private Integer kBps;
 }
