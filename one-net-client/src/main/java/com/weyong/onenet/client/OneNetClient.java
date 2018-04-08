@@ -34,6 +34,7 @@ public class OneNetClient {
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
         b.group(workerGroup).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true);
         oneNetServerSessionManager.setClientName(oneNetClientConfig.getServerName());
+        oneNetServerSessionManager.setReconnectAfterNSeconds(oneNetClientConfig.getReconnectSeconds());
         if(!CollectionUtils.isEmpty(oneNetClientConfig.getServerConfigs())){
             clientName = oneNetClientConfig.getServerName();
             oneNetClientConfig.getServerConfigs().stream().forEach(

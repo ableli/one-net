@@ -10,6 +10,7 @@ logging:
     io.netty.handler.logging: debug
 oneNetClient:
   serverName: localhost
+  reconnectAfterNSeconds: 7
   serverConfigs:
     -
       hostName: localhost

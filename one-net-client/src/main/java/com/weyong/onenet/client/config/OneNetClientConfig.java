@@ -13,5 +13,16 @@ import java.util.List;
 @ConfigurationProperties("oneNetClient")
 public class OneNetClientConfig {
     private String serverName;
+    private Integer reconnectAfterNSeconds;
     private List<OnenetClientServerConfig> serverConfigs;
+
+    public Integer getReconnectSeconds() {
+        return (reconnectAfterNSeconds==null
+                ||reconnectAfterNSeconds==0
+                ||reconnectAfterNSeconds<5)
+                ?
+                -5:
+                -1*reconnectAfterNSeconds;
+    }
+
 }

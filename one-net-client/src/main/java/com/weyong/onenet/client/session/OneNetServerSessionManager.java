@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class OneNetServerSessionManager {
     private ConcurrentHashMap<String, ServerSession> oneNetServerSessions = new ConcurrentHashMap<>();
     private String clientName;
+    private Integer reconnectAfterNSeconds;
 
     @Scheduled(fixedRate = 2000)
     private void heartbeat(){
@@ -34,7 +35,7 @@ public class OneNetServerSessionManager {
                 return;
             }
             Calendar lastHeartBeatTimeCondition = Calendar.getInstance();
-            lastHeartBeatTimeCondition.add(Calendar.SECOND,-100);
+            lastHeartBeatTimeCondition.add(Calendar.SECOND,reconnectAfterNSeconds);
             if(lastHeartBeatTimeCondition.getTime().after(serverSession.getLastHeartbeatTime())) {
                 log.info(String.format("Server Session %s:%d inactive.Try to renew.",
                         serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort()));
