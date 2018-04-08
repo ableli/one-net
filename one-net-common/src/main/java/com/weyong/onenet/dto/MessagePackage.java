@@ -11,15 +11,15 @@ import java.nio.ByteBuffer;
  */
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class ServerMessagePackage extends BasePackage {
+public class MessagePackage extends BasePackage {
     private String msg;
-    public ServerMessagePackage(String msg) {
-        super(DataPackage.OP_TYPE_ERROR);
+    public MessagePackage(String msg) {
+        super(DataPackage.MESSAGE);
         this.msg = msg;
     }
 
-    public ServerMessagePackage(ByteBuf byteBuf) {
-        super(DataPackage.OP_TYPE_ERROR);
+    public MessagePackage(ByteBuf byteBuf) {
+        super(DataPackage.MESSAGE);
         this.setMsg(stringDecoding(byteBuf));
     }
 

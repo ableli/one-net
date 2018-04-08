@@ -11,15 +11,15 @@ import java.nio.ByteBuffer;
  */
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class SessionInvalidPackage extends BasePackage {
-    public SessionInvalidPackage(String contextName, Long sessionId) {
-        super(BasePackage.OP_TYPE_CLOSE);
+public class InvalidSessionPackage extends BasePackage {
+    public InvalidSessionPackage(String contextName, Long sessionId) {
+        super(BasePackage.INVALID_SESSION);
         this.setContextName( contextName);
         this.setSessionId(sessionId);
     }
 
-    public SessionInvalidPackage(ByteBuf byteBuf) {
-        super(BasePackage.OP_TYPE_CLOSE);
+    public InvalidSessionPackage(ByteBuf byteBuf) {
+        super(BasePackage.INVALID_SESSION);
         this.setContextName(stringDecoding(byteBuf));
         this.setSessionId(byteBuf.readLong());
     }

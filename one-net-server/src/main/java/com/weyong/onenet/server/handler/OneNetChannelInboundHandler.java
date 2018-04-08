@@ -1,9 +1,9 @@
 package com.weyong.onenet.server.handler;
 
 import com.weyong.onenet.dto.BasePackage;
-import com.weyong.onenet.dto.OneNetInitialPackage;
+import com.weyong.onenet.dto.InitialPackage;
 import com.weyong.onenet.dto.DataPackage;
-import com.weyong.onenet.dto.ServerMessagePackage;
+import com.weyong.onenet.dto.MessagePackage;
 import com.weyong.onenet.server.OneNetServer;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import com.weyong.onenet.server.session.OneNetSession;
@@ -48,11 +48,11 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
     protected void channelRead0(ChannelHandlerContext ctx, BasePackage msg) throws Exception {
         try {
             switch (msg.getOpType()) {
-                case BasePackage.OP_TYPE_HEART_BEAT:
+                case BasePackage.HEART_BEAT:
                     ctx.channel().writeAndFlush(msg);
                     break;
-                case BasePackage.OP_TYPE_NEW:
-                    OneNetInitialPackage requestMsg = (OneNetInitialPackage) msg;
+                case BasePackage.INITIAL:
+                    InitialPackage requestMsg = (InitialPackage) msg;
                     if (CollectionUtils.isEmpty(requestMsg.getContextNames())) {
                         ctx.close();
                         break;
@@ -62,7 +62,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                     List<String> toRemoveContextName = new ArrayList<>();
                     requestMsg.getContextNames().stream().forEach((contextName) -> {
                         if (!oneNetServer.getContexts().containsKey(contextName)) {
-                            ctx.channel().writeAndFlush(new ServerMessagePackage(
+                            ctx.channel().writeAndFlush(new MessagePackage(
                                     String.format("OneNet %s's config not found in Server", contextName)));
                             toRemoveContextName.add(contextName);
                         }
@@ -75,13 +75,13 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                                 requestMsg.getClientName(), requestMsg.getContextNames(), ctx.channel());
                     }
                     break;
-                case BasePackage.OP_TYPE_CLOSE:
+                case BasePackage.INVALID_SESSION:
                     OneNetServerContext oneNetServerContext = oneNetServer.getContexts().get(msg.getContextName());
                     if (oneNetServerContext != null) {
                         oneNetServerContext.getOneNetSessions().get(msg.getSessionId()).closeFromOneNet();
                     }
                     break;
-                case BasePackage.OP_TYPE_DATA:
+                case BasePackage.DATA:
                     oneNetServerContext = oneNetServer.getContexts().get(msg.getContextName());
                     if (oneNetServerContext == null) {
                         return;

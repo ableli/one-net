@@ -5,9 +5,7 @@ import com.weyong.onenet.client.session.ClientSession;
 import com.weyong.onenet.client.session.ServerSession;
 import com.weyong.onenet.dto.BasePackage;
 import com.weyong.onenet.dto.DataPackage;
-import com.weyong.onenet.dto.HeartbeatPackage;
-import com.weyong.onenet.dto.SessionInvalidPackage;
-import com.weyong.zip.ByteZipUtil;
+import com.weyong.onenet.dto.InvalidSessionPackage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -35,10 +33,10 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, BasePackage msg) {
             switch (msg.getOpType()){
-                case  BasePackage.OP_TYPE_HEART_BEAT :
+                case  BasePackage.HEART_BEAT:
                     serverSession.setLastHeartbeatTime(new Date());
                     break;
-                case BasePackage.OP_TYPE_CLOSE:
+                case BasePackage.INVALID_SESSION:
                     String oneNetName = msg.getContextName();
                     Long sessionId = msg.getSessionId();
                     if (StringUtils.isNotEmpty(oneNetName) && sessionId != null) {
@@ -46,7 +44,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
                         context.getSessionMap().get(sessionId).closeFromOneNet();
                     }
                     break;
-                case BasePackage.OP_TYPE_DATA:
+                case BasePackage.DATA:
                     if (StringUtils.isNotEmpty( msg.getContextName()) &&  msg.getSessionId() != null) {
                         OneNetClientContext context = serverSession.getOneNetClientContextMap().get( msg.getContextName());
                         ClientSession clientSession = context.
@@ -57,7 +55,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
                                 return newClientSession;
                             }catch (Exception ex) {
                                 ctx.channel().writeAndFlush(
-                                        new SessionInvalidPackage(
+                                        new InvalidSessionPackage(
                                                 newClientSession.getContextName(),
                                                 id));
                             }

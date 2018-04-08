@@ -20,7 +20,7 @@ public class DataPackage extends BasePackage
     private Boolean aes = false;
 
     public DataPackage(String contextName, Long sessionId, byte[] currentData, boolean gzip, boolean aes) {
-        super(BasePackage.OP_TYPE_DATA);
+        super(BasePackage.DATA);
         this.setContextName(contextName);
         this.setSessionId(sessionId);
         this.setData(currentData);
@@ -45,7 +45,7 @@ public class DataPackage extends BasePackage
     }
 
     public DataPackage(ByteBuf byteBuf) {
-        super(BasePackage.OP_TYPE_DATA);
+        super(BasePackage.DATA);
         this.setContextName(stringDecoding(byteBuf));
         this.setSessionId(byteBuf.readLong());
         int boolValues = (int)byteBuf.readByte();

@@ -34,8 +34,12 @@ public class InternetChannelInboundHandler extends ChannelInboundHandlerAdapter 
                 int length = frameSize < in.readableBytes() ? frameSize : in.readableBytes();
                 byte[] currentData = new byte[length];
                 in.readBytes(currentData, 0, length);
-                DataPackage dt = new DataPackage(oneNetSession.getContextName(),
-                        oneNetSession.getSessionId(),currentData,true,false);
+                DataPackage dt = new DataPackage(
+                        oneNetSession.getContextName(),
+                        oneNetSession.getSessionId(),
+                        currentData,
+                        oneNetSession.getOneNetServerContext().getOneNetServerContextConfig().isZip(),
+                        oneNetSession.getOneNetServerContext().getOneNetServerContextConfig().isAes());
                 oneNetSession.getOneNetChannel().writeAndFlush(dt);
 
             }

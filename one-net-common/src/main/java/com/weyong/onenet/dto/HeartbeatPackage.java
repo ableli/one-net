@@ -1,6 +1,5 @@
 package com.weyong.onenet.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,7 +12,7 @@ import java.nio.ByteBuffer;
 @EqualsAndHashCode(callSuper=false)
 public class HeartbeatPackage extends BasePackage {
     public HeartbeatPackage() {
-        super(DataPackage.OP_TYPE_HEART_BEAT);
+        super(DataPackage.HEART_BEAT);
     }
     private static HeartbeatPackage heartbeatPackage = new HeartbeatPackage();
 

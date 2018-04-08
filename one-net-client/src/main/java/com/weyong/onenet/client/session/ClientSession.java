@@ -1,8 +1,7 @@
 package com.weyong.onenet.client.session;
 
 import com.weyong.onenet.client.context.OneNetClientContext;
-import com.weyong.onenet.dto.BasePackage;
-import com.weyong.onenet.dto.SessionInvalidPackage;
+import com.weyong.onenet.dto.InvalidSessionPackage;
 import io.netty.channel.Channel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +22,7 @@ public class ClientSession {
     public void closeFromLocal() {
         oneNetClientContext.getSessionMap().computeIfPresent(sessionId,(sessionId,clientSession)->{
             serverSession.getServerChannel().writeAndFlush(
-                    new SessionInvalidPackage(clientSession.getContextName(),sessionId));
+                    new InvalidSessionPackage(clientSession.getContextName(),sessionId));
             oneNetClientContext.removeFromPool(localChannel);
             return null;
         });

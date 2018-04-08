@@ -14,11 +14,11 @@ import java.nio.*;
 @Data
 public abstract class BasePackage implements Serializable{
     ThreadLocal<ByteBuffer> byteBufferThreadLocal = new ThreadLocal<>();
-    public static final byte OP_TYPE_NEW = 1;
-    public static final byte OP_TYPE_HEART_BEAT = 2;
-    public static final byte OP_TYPE_CLOSE = 3;
-    public static final byte OP_TYPE_ERROR = 4;
-    public static final byte OP_TYPE_DATA = 5;
+    public static final byte INITIAL = 1;
+    public static final byte HEART_BEAT = 2;
+    public static final byte INVALID_SESSION = 3;
+    public static final byte MESSAGE = 4;
+    public static final byte DATA = 5;
     private Byte opType;
     private String contextName;
     private Long sessionId;
@@ -44,15 +44,15 @@ public abstract class BasePackage implements Serializable{
     public static BasePackage fromBytes(ByteBuf byteBuf){
        byte typeByte = byteBuf.readByte();
        switch(typeByte){
-           case OP_TYPE_NEW:
-               return new OneNetInitialPackage(byteBuf);
-           case OP_TYPE_HEART_BEAT:
+           case INITIAL:
+               return new InitialPackage(byteBuf);
+           case HEART_BEAT:
                return HeartbeatPackage.instance();
-           case OP_TYPE_CLOSE:
-               return new SessionInvalidPackage(byteBuf);
-           case OP_TYPE_ERROR:
-               return new ServerMessagePackage(byteBuf);
-           case OP_TYPE_DATA:
+           case INVALID_SESSION:
+               return new InvalidSessionPackage(byteBuf);
+           case MESSAGE:
+               return new MessagePackage(byteBuf);
+           case DATA:
                return new DataPackage(byteBuf);
        }
        return null;

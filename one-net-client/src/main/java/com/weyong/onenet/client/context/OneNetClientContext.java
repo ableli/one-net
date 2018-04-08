@@ -31,7 +31,7 @@ public class OneNetClientContext {
         this.oneNetClientContextConfig = oneNetClientContextConfig;
         if(oneNetClientContextConfig.isLocalPool()){
             localPool = new GenericObjectPool<Channel>(new LocalChannelFactory(
-                    ()-> OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(),oneNetClientContextConfig.getPort(),null)
+                    ()-> OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(),oneNetClientContextConfig.getPort(),new LocalChannelInitializer(null))
             ),
                     getGenericObjectPoolConfig());
         }

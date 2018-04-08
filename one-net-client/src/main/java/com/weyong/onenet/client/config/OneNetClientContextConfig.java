@@ -11,4 +11,6 @@ public class OneNetClientContextConfig {
     private String localhost;
     private Integer port;
     private boolean localPool;
+    private boolean zip;
+    private boolean aes;
 }

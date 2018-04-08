@@ -7,7 +7,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -15,16 +14,16 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class OneNetInitialPackage extends BasePackage {
+public class InitialPackage extends BasePackage {
     private String clientName;
     private List<String> contextNames;
     private String serverKey;
-    public OneNetInitialPackage(){
-        super(BasePackage.OP_TYPE_NEW);
+    public InitialPackage(){
+        super(BasePackage.INITIAL);
     }
 
-    public OneNetInitialPackage(ByteBuf byteBuf) {
-        super(BasePackage.OP_TYPE_NEW);
+    public InitialPackage(ByteBuf byteBuf) {
+        super(BasePackage.INITIAL);
         this.setClientName(stringDecoding(byteBuf));
         this.setServerKey(stringDecoding(byteBuf));
         this.setContextNames(new ArrayList<>());

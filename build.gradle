@@ -40,9 +40,18 @@ allprojects {
 apply from: rootProject.file('gradle/deps.gradle')
 
 subprojects {
+    apply plugin: 'org.springframework.boot'
     dependencies {
         provided 'org.projectlombok:lombok'
-
+        task clientJar(type: Jar) {
+            appendix = 'clear'
+            from sourceSets.main.output
+            exclude('bootstrap.yml')
+            exclude('application.yml')
+        }
+        task clearBoot(type: BootRepackage, dependsOn: clientJar) {
+            withJarTask = clientJar
+        }
         testCompile("junit:junit:4.11")
     }
 }

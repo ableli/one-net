@@ -1,7 +1,6 @@
 package com.weyong.onenet.server.session;
 
-import com.weyong.onenet.dto.BasePackage;
-import com.weyong.onenet.dto.SessionInvalidPackage;
+import com.weyong.onenet.dto.InvalidSessionPackage;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import io.netty.channel.Channel;
 import io.netty.channel.socket.SocketChannel;
@@ -31,7 +30,7 @@ public class OneNetSession {
 
     public void closeFromClient() {
         oneNetServerContext.getOneNetSessions().computeIfPresent(sessionId,(sessionId,clientSession)->{
-            oneNetChannel.writeAndFlush(new SessionInvalidPackage(clientSession.getContextName(), sessionId));
+            oneNetChannel.writeAndFlush(new InvalidSessionPackage(clientSession.getContextName(), sessionId));
             return null;
         });
     }

@@ -22,6 +22,8 @@ public class OneNetMsgDecoder extends LengthFieldBasedFrameDecoder {
         if (frame == null) {
             return null;
         }
-        return BasePackage.fromBytes(frame);
+        BasePackage basePackage =  BasePackage.fromBytes(frame);
+        in.release();
+        return basePackage;
     }
 }
