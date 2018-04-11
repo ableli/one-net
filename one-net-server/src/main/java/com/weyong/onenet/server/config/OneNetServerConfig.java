@@ -13,5 +13,6 @@ import java.util.List;
 public class OneNetServerConfig {
     private String name;
     private Integer oneNetPort;
-    private List<OneNetServerContextConfig> contexts;
+    private List<OneNetServerContextConfig> tcpContexts;
+    private OneNetServerHttpContextConfig httpContext;
 }

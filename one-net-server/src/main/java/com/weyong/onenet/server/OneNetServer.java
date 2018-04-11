@@ -30,8 +30,8 @@ public class OneNetServer {
     private OneNetConnectionManager oneNetConnectionManager = new OneNetConnectionManager();
     private ConcurrentHashMap<String,OneNetServerContext> contexts = new ConcurrentHashMap<>();
     private ServerBootstrap insideBootstrap = new ServerBootstrap();
-    private EventLoopGroup bossGroup = new NioEventLoopGroup();
-    private EventLoopGroup workerGroup = new NioEventLoopGroup();
+    public static EventLoopGroup bossGroup = new NioEventLoopGroup();
+    public static EventLoopGroup workerGroup = new NioEventLoopGroup();
 
     @Autowired
     public OneNetServer(OneNetServerConfig oneNetServerConfig){
@@ -48,7 +48,7 @@ public class OneNetServer {
         try {
             ChannelFuture channel = insideBootstrap.bind(oneNetServerConfig.getOneNetPort()).sync();
             log.info(String.format("Server OneNet port %d start success.",oneNetServerConfig.getOneNetPort()));
-            oneNetServerConfig.getContexts().stream().forEach((contextConfig)->{
+            oneNetServerConfig.getTcpContexts().stream().forEach((contextConfig)->{
                 createContext(contextConfig);
             });
         } catch (InterruptedException e) {

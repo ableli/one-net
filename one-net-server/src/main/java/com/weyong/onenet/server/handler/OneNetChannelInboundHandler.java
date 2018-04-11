@@ -55,7 +55,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                         ctx.close();
                         break;
                     }
-                    log.info(String.format("Client %s with contexts [%s] request connections.",
+                    log.info(String.format("Client %s with tcpContexts [%s] request connections.",
                             requestMsg.getClientName(), StringUtils.join(requestMsg.getContextNames(), ",")));
                     List<String> toRemoveContextName = new ArrayList<>();
 

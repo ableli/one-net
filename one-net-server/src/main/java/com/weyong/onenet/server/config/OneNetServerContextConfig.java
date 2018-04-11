@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class OneNetServerContextConfig {
     private String contextName;
-    private Integer internetPort;
     private boolean zip;
     private boolean aes;
     private Integer kBps;
+    private Integer internetPort;
 }

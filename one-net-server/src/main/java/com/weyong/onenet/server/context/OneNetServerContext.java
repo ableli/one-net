@@ -23,13 +23,16 @@ import java.util.Map;
 public class OneNetServerContext {
     private ServerBootstrap outsideBootstrap = new ServerBootstrap();
     private Map<Long, OneNetSession> oneNetSessions= new HashMap<>();
-    private OneNetServer oneNetServer;
+//    private OneNetServer oneNetServer;
     private OneNetServerContextConfig oneNetServerContextConfig;
 
+    static{
+    }
+
     public OneNetServerContext(OneNetServerContextConfig oneNetServerContextConfig, OneNetServer oneNetServer) {
-        this.oneNetServer = oneNetServer;
         this.oneNetServerContextConfig = oneNetServerContextConfig;
-        outsideBootstrap.group(oneNetServer.getBossGroup(),oneNetServer.getWorkerGroup()).channel(NioServerSocketChannel.class)
+        outsideBootstrap.group(OneNetServer.bossGroup,OneNetServer.workerGroup);
+        outsideBootstrap.channel(NioServerSocketChannel.class)
                 .childHandler(new InternetChannelInitializer(this))
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
