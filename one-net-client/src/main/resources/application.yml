@@ -19,10 +19,15 @@ oneNetClient:
         -
           contextName: weyong
           localhost: localhost
-          port: 80
+          port: 88
           localPool: true
         -
           contextName: mstsc
           localhost: localhost
           port: 3386
+          localPool: false
+        -
+          contextName: test
+          localhost: localhost
+          port: 88
           localPool: false

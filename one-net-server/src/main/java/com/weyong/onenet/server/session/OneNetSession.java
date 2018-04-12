@@ -27,6 +27,7 @@ public class OneNetSession {
         this.sessionId = index.incrementAndGet();
         this.internetChannel = ch;
         this.oneNetChannel  = oneNetChannel;
+        this.oneNetServerContext = oneNetServerContext;
     }
 
     public void closeFromClient() {

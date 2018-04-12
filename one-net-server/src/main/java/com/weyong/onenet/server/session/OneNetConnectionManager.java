@@ -1,5 +1,6 @@
 package com.weyong.onenet.server.session;
 
+import com.weyong.onenet.server.context.OneNetServerContext;
 import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,22 +17,19 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 @Data
-public class OneNetConnectionManager {
+public abstract class OneNetConnectionManager {
     private AtomicInteger random = new AtomicInteger(1);
     private ConcurrentHashMap<String, List<ClientSession>> contextNameSessionMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ClientSession> oneNetClientSessionMap = new ConcurrentHashMap<>();
 
-    public Channel getAvailableChannel(String contextName) {
-        if(!contextNameSessionMap.containsKey(contextName)){
-            return null;
-        }
-        List<ClientSession>  sessions = contextNameSessionMap.get(contextName);
+    public abstract Channel getAvailableChannel(String contextName);
+
+    protected Channel getChannel(List<ClientSession> sessions) {
         if(CollectionUtils.isEmpty(sessions)){
             return null;
         }
         Channel selectedChannel = null;
         while(selectedChannel == null && !CollectionUtils.isEmpty(sessions)){
-            int selectedOne = random.incrementAndGet()%sessions.size();
+            int selectedOne = getRandom().incrementAndGet()%sessions.size();
             ClientSession clientSession =  sessions.get(selectedOne);
             if(clientSession!=null && clientSession.getClientChannel()!=null){
                 selectedChannel = clientSession .getClientChannel();
@@ -41,26 +40,15 @@ public class OneNetConnectionManager {
         return selectedChannel;
     }
 
-    public void refreshSessionChannel(String clientName, List<String> contextNames, Channel channel) {
-       ClientSession clientSession = oneNetClientSessionMap.computeIfAbsent(clientName,(name)-> new ClientSession(name) );
-        if(clientSession.getClientChannel() != null){
-            log.info(String.format("Client session %s renew",clientSession.getClientName()));
-            clientSession.getClientChannel().close();
-        }
-        clientSession.setClientChannel(channel);
-        contextNames.stream().forEach((contextName)->{
-            List<ClientSession> sessions = contextNameSessionMap.computeIfAbsent(contextName,(name)->new LinkedList<ClientSession>());
+    public void registerClientSession(String name, ClientSession clientSession) {
+        this.getContextNameSessionMap().compute(name,(key,sessions)->{
+            if(sessions == null){
+                sessions = new LinkedList<>();
+            }
             if(!sessions.contains(clientSession)){
-                log.info(String.format("Client context %s -> %s added.",clientName ,contextName));
                 sessions.add(clientSession);
             }
-        });
-    }
-
-    public void removeOneNetSession(String clientName) {
-        oneNetClientSessionMap.computeIfPresent(clientName,(client,clientSession)->{
-            clientSession.setClientChannel(null);
-            return null;
+            return sessions;
         });
     }
 }

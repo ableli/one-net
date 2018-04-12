@@ -6,7 +6,8 @@ import com.weyong.onenet.server.config.OneNetServerHttpContextConfig;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import com.weyong.onenet.server.context.OneNetServerHttpContext;
 import com.weyong.onenet.server.handler.OneNetChannelInitializer;
-import com.weyong.onenet.server.session.OneNetConnectionManager;
+import com.weyong.onenet.server.session.OneNetHttpConnectionManager;
+import com.weyong.onenet.server.session.OneNetTcpConnectionManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,7 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @EnableConfigurationProperties({OneNetServerConfig.class})
 public class OneNetServer {
-    private OneNetConnectionManager oneNetConnectionManager = new OneNetConnectionManager();
+    private OneNetTcpConnectionManager oneNetTcpConnectionManager = new OneNetTcpConnectionManager();
+    private OneNetHttpConnectionManager oneNetHttpConnectionManager = new OneNetHttpConnectionManager();
     private ConcurrentHashMap<String,OneNetServerContext> contexts = new ConcurrentHashMap<>();
     private ServerBootstrap insideBootstrap = new ServerBootstrap();
     public static EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -50,14 +53,18 @@ public class OneNetServer {
         try {
             log.info(String.format("Server OneNet port %d start success.",oneNetServerConfig.getOneNetPort()));
             ChannelFuture channel = insideBootstrap.bind(oneNetServerConfig.getOneNetPort()).sync();
-            log.info(String.format("Start Tcp Contexts, size is : %d", oneNetServerConfig.getTcpContexts().size()));
-            oneNetServerConfig.getTcpContexts().stream().forEach((contextConfig)->{
-                createContext(contextConfig);
-            });
-            log.info(String.format("Start Http Contexts, size is : %d", oneNetServerConfig.getHttpContext().size()));
-            oneNetServerConfig.getHttpContext().stream().forEach((contextConfig)->{
-                createHttpContext(contextConfig);
-            });
+            if(!CollectionUtils.isEmpty(oneNetServerConfig.getTcpContexts())) {
+                log.info(String.format("Start Tcp Contexts, size is : %d", oneNetServerConfig.getTcpContexts().size()));
+                oneNetServerConfig.getTcpContexts().stream().forEach((contextConfig) -> {
+                    createContext(contextConfig);
+                });
+            }
+            if(!CollectionUtils.isEmpty(oneNetServerConfig.getHttpContexts())) {
+                log.info(String.format("Start Http Contexts, size is : %d", oneNetServerConfig.getHttpContexts().size()));
+                oneNetServerConfig.getHttpContexts().stream().forEach((contextConfig) -> {
+                    createHttpContext(contextConfig);
+                });
+            }
         } catch (InterruptedException e) {
             log.error(String.format("Server OneNet port %d start failed. The reason is :%s",oneNetServerConfig.getOneNetPort(),e.getMessage()));
         }

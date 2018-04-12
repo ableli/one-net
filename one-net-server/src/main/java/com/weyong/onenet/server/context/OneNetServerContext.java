@@ -31,13 +31,16 @@ public class OneNetServerContext {
 
     public OneNetServerContext(OneNetServerContextConfig oneNetServerContextConfig, OneNetServer oneNetServer) {
         this.oneNetServerContextConfig = oneNetServerContextConfig;
-        this.setOneNetConnectionManager(oneNetServer.getOneNetConnectionManager());
+        this.setOneNetConnectionManager(oneNetServer.getOneNetTcpConnectionManager());
         outsideBootstrap.group(OneNetServer.bossGroup,OneNetServer.workerGroup);
         outsideBootstrap.channel(NioServerSocketChannel.class)
                 .childHandler(new InternetChannelInitializer(this))
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
         try {
+            if(oneNetServerContextConfig.getInternetPort().intValue()==80){
+                 OneNetServerHttpContext.tcp80Initialed = true;
+            }
             outsideBootstrap.bind(oneNetServerContextConfig.getInternetPort()).sync();
             log.info(String.format("OneNet Server Context: %s started, Port: %d",
                     oneNetServerContextConfig.getContextName(),

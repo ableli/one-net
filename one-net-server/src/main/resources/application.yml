@@ -11,7 +11,7 @@ logging:
 oneNetServer:
   name: firstServer
   oneNetPort: 9527
-  contexts:
+  tcpContexts:
     -
       contextName: weyong
       internetPort: 83
@@ -24,3 +24,12 @@ oneNetServer:
       kBps: 200
       zip: true
       aes: false
+  httpContexts:
+    -
+      contextName: test
+      zip: true
+      aes: false
+      kBps: 200
+      domainRegExs:
+        -
+          \w+.test.com
