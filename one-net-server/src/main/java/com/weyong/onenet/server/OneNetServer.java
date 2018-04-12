@@ -2,7 +2,9 @@ package com.weyong.onenet.server;
 
 import com.weyong.onenet.server.config.OneNetServerConfig;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
+import com.weyong.onenet.server.config.OneNetServerHttpContextConfig;
 import com.weyong.onenet.server.context.OneNetServerContext;
+import com.weyong.onenet.server.context.OneNetServerHttpContext;
 import com.weyong.onenet.server.handler.OneNetChannelInitializer;
 import com.weyong.onenet.server.session.OneNetConnectionManager;
 import io.netty.bootstrap.ServerBootstrap;
@@ -46,18 +48,28 @@ public class OneNetServer {
 
     public void startServer(OneNetServerConfig oneNetServerConfig){
         try {
-            ChannelFuture channel = insideBootstrap.bind(oneNetServerConfig.getOneNetPort()).sync();
             log.info(String.format("Server OneNet port %d start success.",oneNetServerConfig.getOneNetPort()));
+            ChannelFuture channel = insideBootstrap.bind(oneNetServerConfig.getOneNetPort()).sync();
+            log.info(String.format("Start Tcp Contexts, size is : %d", oneNetServerConfig.getTcpContexts().size()));
             oneNetServerConfig.getTcpContexts().stream().forEach((contextConfig)->{
                 createContext(contextConfig);
+            });
+            log.info(String.format("Start Http Contexts, size is : %d", oneNetServerConfig.getHttpContext().size()));
+            oneNetServerConfig.getHttpContext().stream().forEach((contextConfig)->{
+                createHttpContext(contextConfig);
             });
         } catch (InterruptedException e) {
             log.error(String.format("Server OneNet port %d start failed. The reason is :%s",oneNetServerConfig.getOneNetPort(),e.getMessage()));
         }
     }
 
+    private void createHttpContext(OneNetServerHttpContextConfig contextConfig) {
+        contexts.computeIfAbsent(contextConfig.getContextName()
+                ,(contextName)->new OneNetServerHttpContext(contextConfig,this));
+    }
+
     public void createContext(OneNetServerContextConfig oneNetContextConfig) {
-            OneNetServerContext currentContext =contexts.computeIfAbsent(oneNetContextConfig.getContextName()
+            contexts.computeIfAbsent(oneNetContextConfig.getContextName()
                     ,(contextName)->new OneNetServerContext(oneNetContextConfig,this));
     }
 }

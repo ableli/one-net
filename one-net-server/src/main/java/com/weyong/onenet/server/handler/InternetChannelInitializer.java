@@ -22,7 +22,7 @@ public class InternetChannelInitializer extends ChannelInitializer<SocketChannel
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         Channel oneNetChannel =
-                oneNetServerContext.getOneNetServer().getOneNetConnectionManager().getAvailableChannel(
+                oneNetServerContext.getOneNetConnectionManager().getAvailableChannel(
                         oneNetServerContext.getOneNetServerContextConfig().getContextName());
         if(oneNetChannel == null){
             ch.close();

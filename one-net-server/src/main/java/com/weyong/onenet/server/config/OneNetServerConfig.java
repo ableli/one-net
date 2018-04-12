@@ -14,5 +14,5 @@ public class OneNetServerConfig {
     private String name;
     private Integer oneNetPort;
     private List<OneNetServerContextConfig> tcpContexts;
-    private OneNetServerHttpContextConfig httpContext;
+    private List<OneNetServerHttpContextConfig> httpContext;
 }

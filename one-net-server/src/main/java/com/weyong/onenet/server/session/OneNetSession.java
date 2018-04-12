@@ -18,6 +18,7 @@ public class OneNetSession {
     private static AtomicLong index  = new AtomicLong(1);
     private Long sessionId;
     private OneNetServerContext oneNetServerContext;
+    private String clientName;
     private Channel internetChannel;
     private Channel oneNetChannel;
 

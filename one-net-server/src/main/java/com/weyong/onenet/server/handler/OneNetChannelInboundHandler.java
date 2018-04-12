@@ -22,13 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<BasePackage> {
-    private OneNetServer oneNetServer;
-    private String clientName;
-    public static final ConcurrentHashMap<String, Channel> outsideChannelMap
-            = new ConcurrentHashMap<String, Channel>();
+    private OneNetSession oneNetSession;
 
-    public OneNetChannelInboundHandler(OneNetServer oneNetServer){
-        this.oneNetServer = oneNetServer;
+    public OneNetChannelInboundHandler(OneNetSession oneNetSession){
+        this.oneNetSession = oneNetSession;
     }
 
 
@@ -36,7 +33,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.channel().close();
         ctx.close();
-        if(StringUtils.isNotEmpty(clientName)) {
+        if(StringUtils.isNotEmpty(this.oneNetSession.getClientName())) {
             this.oneNetServer.getOneNetConnectionManager().removeOneNetSession("clientName");
         }
     }

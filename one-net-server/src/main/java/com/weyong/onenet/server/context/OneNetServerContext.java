@@ -3,6 +3,7 @@ package com.weyong.onenet.server.context;
 import com.weyong.onenet.server.OneNetServer;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
 import com.weyong.onenet.server.handler.InternetChannelInitializer;
+import com.weyong.onenet.server.session.OneNetConnectionManager;
 import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -10,6 +11,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -20,17 +22,16 @@ import java.util.Map;
  */
 @Slf4j
 @Data
+@NoArgsConstructor
 public class OneNetServerContext {
-    private ServerBootstrap outsideBootstrap = new ServerBootstrap();
+    protected ServerBootstrap outsideBootstrap = new ServerBootstrap();
     private Map<Long, OneNetSession> oneNetSessions= new HashMap<>();
-//    private OneNetServer oneNetServer;
+    private OneNetConnectionManager oneNetConnectionManager;
     private OneNetServerContextConfig oneNetServerContextConfig;
-
-    static{
-    }
 
     public OneNetServerContext(OneNetServerContextConfig oneNetServerContextConfig, OneNetServer oneNetServer) {
         this.oneNetServerContextConfig = oneNetServerContextConfig;
+        this.setOneNetConnectionManager(oneNetServer.getOneNetConnectionManager());
         outsideBootstrap.group(OneNetServer.bossGroup,OneNetServer.workerGroup);
         outsideBootstrap.channel(NioServerSocketChannel.class)
                 .childHandler(new InternetChannelInitializer(this))
