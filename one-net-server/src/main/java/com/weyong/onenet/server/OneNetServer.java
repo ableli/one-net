@@ -9,6 +9,7 @@ import com.weyong.onenet.server.context.OneNetServerHttpContext;
 import com.weyong.onenet.server.manager.OneNetHttpConnectionManager;
 import com.weyong.onenet.server.manager.OneNetTcpConnectionManager;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -80,5 +81,20 @@ public class OneNetServer {
     public void createContext(OneNetServerContextConfig oneNetContextConfig) {
         contexts.computeIfAbsent(oneNetContextConfig.getContextName()
                 , (contextName) -> new OneNetServerContext(oneNetContextConfig, this));
+    }
+
+    public void closeSessions(Channel channel) {
+        getContexts().values().stream().forEach((oneNetServerContext) -> {
+            if (oneNetServerContext instanceof OneNetServerHttpContext) {
+                return;
+            }
+            oneNetServerContext.getOneNetSessions().values().stream()
+                    .filter((oneNetSession) -> {
+                            return oneNetSession.getOneNetChannel() == channel;}
+                            ).forEach((toCloseSession) -> {
+                            oneNetServerContext.close(toCloseSession);
+                    }
+            );
+        });
     }
 }

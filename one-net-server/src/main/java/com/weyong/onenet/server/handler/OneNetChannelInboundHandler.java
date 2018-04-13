@@ -34,6 +34,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
             log.info(String.format("Client session %s inactive.", clientSession.getClientName()));
             this.clientSession.setClientChannel(null);
         }
+        oneNetServer.closeSessions(ctx.channel());
     }
 
 
@@ -79,10 +80,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                 case BasePackage.INVALID_SESSION:
                     OneNetServerContext oneNetServerContext = oneNetServer.getContexts().get(msg.getContextName());
                     if (oneNetServerContext != null) {
-                        OneNetSession session = oneNetServerContext.getOneNetSessions().get(msg.getSessionId());
-                        if (session != null) {
-                            session.closeFromOneNet();
-                        }
+                        oneNetServerContext.close(msg.getSessionId());
                     }
                     break;
                 case BasePackage.DATA:

@@ -53,6 +53,7 @@ public class HttpRawDataHandler extends HttpObjectDecoder {
                     hostName));
             ctx.close();
         }
+        in.release();
     }
 
     @Override
@@ -85,5 +86,11 @@ public class HttpRawDataHandler extends HttpObjectDecoder {
     @Override
     protected HttpMessage createInvalidMessage() {
         return new DefaultFullHttpRequest(HttpVersion.HTTP_1_0, HttpMethod.GET, "/bad-request", validateHeaders);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        OneNetServerHttpContext.instance.close(httpSession);
+        super.channelInactive(ctx);
     }
 }

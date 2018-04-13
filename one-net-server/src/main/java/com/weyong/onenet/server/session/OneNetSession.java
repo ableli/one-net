@@ -17,32 +17,22 @@ import java.util.concurrent.atomic.AtomicLong;
 public class OneNetSession {
     private static AtomicLong index = new AtomicLong(1);
     private Long sessionId;
-    private OneNetServerContext oneNetServerContext;
-    private String clientName;
+    private String contextName;
     private Channel internetChannel;
     private Channel oneNetChannel;
 
 
-    public OneNetSession(OneNetServerContext oneNetServerContext, SocketChannel ch, Channel oneNetChannel) {
+    public OneNetSession(String contextName, SocketChannel ch, Channel oneNetChannel) {
         this.sessionId = index.incrementAndGet();
         this.internetChannel = ch;
         this.oneNetChannel = oneNetChannel;
-        this.oneNetServerContext = oneNetServerContext;
+        this.contextName = contextName;
     }
 
-    public void closeFromClient() {
-        oneNetServerContext.getOneNetSessions().computeIfPresent(sessionId, (sessionId, clientSession) -> {
-            oneNetChannel.writeAndFlush(new InvalidSessionPackage(clientSession.getContextName(), sessionId));
-            return null;
-        });
-    }
-
-    public String getContextName() {
-        return oneNetServerContext.getOneNetServerContextConfig().getContextName();
-    }
-
-    public void closeFromOneNet() {
-        oneNetServerContext.getOneNetSessions().remove(sessionId);
+    public void close() {
+        if(this.oneNetChannel.isActive()) {
+            oneNetChannel.writeAndFlush(new InvalidSessionPackage(getContextName(), sessionId));
+        }
         if (internetChannel != null && internetChannel.isActive()) {
             internetChannel.close();
         }

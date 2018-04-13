@@ -45,7 +45,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
                 Long sessionId = msg.getSessionId();
                 if (StringUtils.isNotEmpty(oneNetName) && sessionId != null) {
                     OneNetClientContext context = serverSession.getOneNetClientContextMap().get(oneNetName);
-                    context.getSessionMap().get(sessionId).closeFromOneNet();
+                    context.close(sessionId);
                 }
                 break;
             case BasePackage.DATA:
@@ -53,7 +53,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
                     OneNetClientContext context = serverSession.getOneNetClientContextMap().get(msg.getContextName());
                     ClientSession clientSession = context.
                             getSessionMap().computeIfAbsent(msg.getSessionId(), (id) -> {
-                        ClientSession newClientSession = new ClientSession(id, serverSession, context, null);
+                        ClientSession newClientSession = new ClientSession(id, serverSession, context.getOneNetClientContextConfig().getContextName(), null);
                         try {
                             newClientSession.setLocalChannel(context.getContextLocalChannel(newClientSession));
                             return newClientSession;

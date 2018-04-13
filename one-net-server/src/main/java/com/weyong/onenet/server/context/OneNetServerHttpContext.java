@@ -62,7 +62,7 @@ public class OneNetServerHttpContext extends OneNetServerContext {
 
     @Override
     public OneNetSession createSession(SocketChannel ch, Channel oneNetChannel) {
-        OneNetHttpSession oneNetSession = new OneNetHttpSession(this, ch, oneNetChannel);
+        OneNetHttpSession oneNetSession = new OneNetHttpSession(ch, oneNetChannel);
         this.getOneNetSessions().put(oneNetSession.getSessionId(), oneNetSession);
         return oneNetSession;
     }

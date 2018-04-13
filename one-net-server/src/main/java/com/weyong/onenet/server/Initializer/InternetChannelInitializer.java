@@ -30,12 +30,11 @@ public class InternetChannelInitializer extends ChannelInitializer<SocketChannel
             ch.close();
         } else {
             OneNetSession oneNetSession = oneNetServerContext.createSession(ch, oneNetChannel);
-            oneNetSession.setOneNetServerContext(oneNetServerContext);
             int bytePreSecond = oneNetServerContext.getOneNetServerContextConfig().getKBps() * 1024;
             ch.pipeline()
                     .addLast(new ChannelTrafficShapingHandler(bytePreSecond,
                             bytePreSecond))
-                    .addLast(new InternetChannelInboundHandler(oneNetSession))
+                    .addLast(new InternetChannelInboundHandler(oneNetServerContext,oneNetSession))
                     .addLast(new ByteArrayEncoder());
         }
     }

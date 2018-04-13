@@ -16,25 +16,11 @@ import lombok.NoArgsConstructor;
 public class ClientSession {
     private Long sessionId;
     private ServerSession serverSession;
-    private OneNetClientContext oneNetClientContext;
+    private String contextName;
     private Channel localChannel;
 
-    public void closeFromLocal() {
-        oneNetClientContext.getSessionMap().computeIfPresent(sessionId, (sessionId, clientSession) -> {
-            serverSession.getServerChannel().writeAndFlush(
-                    new InvalidSessionPackage(clientSession.getContextName(), sessionId));
-            oneNetClientContext.removeFromPool(localChannel);
-            return null;
-        });
-    }
-
-    public String getContextName() {
-        return oneNetClientContext.getOneNetClientContextConfig().getContextName();
-    }
-
-    public void closeFromOneNet() {
-        oneNetClientContext.getSessionMap().remove(sessionId);
-        localChannel.close();
-        oneNetClientContext.removeFromPool(localChannel);
+    public void close() {
+        serverSession.getServerChannel().writeAndFlush(
+                new InvalidSessionPackage(this.getContextName(), sessionId));
     }
 }

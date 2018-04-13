@@ -16,7 +16,9 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by haoli on 2018/4/6.
@@ -35,7 +37,7 @@ public class OneNetClientContext {
         this.oneNetClientContextConfig = oneNetClientContextConfig;
         if (oneNetClientContextConfig.isLocalPool()) {
             localPool = new GenericObjectPool<Channel>(new LocalChannelFactory(
-                    () -> OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(), oneNetClientContextConfig.getPort(), new LocalChannelInitializer(null))
+                    () -> OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(), oneNetClientContextConfig.getPort(), new LocalChannelInitializer(this,null))
             ),
                     getGenericObjectPoolConfig());
         }
@@ -61,7 +63,7 @@ public class OneNetClientContext {
         if (!oneNetClientContextConfig.isLocalPool()) {
             channel = OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(),
                     oneNetClientContextConfig.getPort(),
-                    new LocalChannelInitializer(clientSession));
+                    new LocalChannelInitializer(this,clientSession));
         } else {
             try {
                 channel = localPool.borrowObject();
@@ -72,8 +74,8 @@ public class OneNetClientContext {
             ((LocalInboudHandler) handler).setClientSession(clientSession);
             ChannelTrafficShapingHandler channelTrafficShapingHandler =
                     (ChannelTrafficShapingHandler) channel.pipeline().get(LocalChannelInitializer.CHANNEL_TRAFFIC_HANDLER);
-            channelTrafficShapingHandler.setReadLimit(clientSession.getOneNetClientContext().kBps * 1024);
-            channelTrafficShapingHandler.setWriteLimit(clientSession.getOneNetClientContext().kBps * 1024);
+            channelTrafficShapingHandler.setReadLimit(kBps * 1024);
+            channelTrafficShapingHandler.setWriteLimit(kBps * 1024);
             log.debug(localPool.getNumActive() + "-" + localPool.getNumIdle());
         }
         return channel;
@@ -103,4 +105,20 @@ public class OneNetClientContext {
         }
     }
 
+    public void close(ClientSession clientSession) {
+        close(clientSession.getSessionId());
+    }
+
+    public void closeAll() {
+        List<ClientSession> clientSessionList = this.getSessionMap().values().stream().collect(Collectors.toList());
+        clientSessionList.forEach((targetSession)-> close(targetSession));
+    }
+
+    public void close(Long sessionId) {
+        ClientSession targetSession = this.getSessionMap().remove(sessionId);
+        if(targetSession!=null) {
+            targetSession.close();
+            returnChannel(targetSession.getLocalChannel());
+        }
+    }
 }

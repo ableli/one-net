@@ -44,8 +44,8 @@ public class ServerSession {
     }
 
     public void invalidAllClientSessions() {
-        oneNetClientContextMap.values().stream().forEach((oneNetClientContext -> {
-            oneNetClientContext.getSessionMap().values().forEach((ClientSession::closeFromOneNet));
-        }));
+        oneNetClientContextMap.values().stream().forEach((oneNetClientContext ->
+            oneNetClientContext.closeAll()
+       ));
     }
 }

@@ -13,6 +13,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,12 +58,29 @@ public class OneNetServerContext {
     }
 
     public OneNetSession createSession(SocketChannel ch, Channel oneNetChannel) {
-        OneNetSession oneNetSession = new OneNetSession(this, ch, oneNetChannel);
+        OneNetSession oneNetSession = new OneNetSession(this.getOneNetServerContextConfig().getContextName(), ch, oneNetChannel);
         oneNetSessions.put(oneNetSession.getSessionId(), oneNetSession);
         return oneNetSession;
     }
 
     public OneNetServerContextConfig getOneNetServerContextConfig(String name) {
         return oneNetServerContextConfig;
+    }
+
+    @Autowired
+    public String toString(){
+        return oneNetServerContextConfig.getContextName();
+    }
+
+    public void close(OneNetSession oneNetSession) {
+        oneNetSession.close();
+        this.getOneNetSessions().remove(oneNetSession.getSessionId());
+    }
+
+    public void close(Long sessionId) {
+        OneNetSession oneNetSession = this.getOneNetSessions().remove(sessionId);
+        if(oneNetSession!=null) {
+            oneNetSession.close();
+        }
     }
 }

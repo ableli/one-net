@@ -3,6 +3,7 @@ package com.weyong.onenet.server.session;
 import com.weyong.onenet.dto.DataPackage;
 import com.weyong.onenet.server.config.OneNetServerHttpContextConfig;
 import com.weyong.onenet.server.context.OneNetServerContext;
+import com.weyong.onenet.server.context.OneNetServerHttpContext;
 import io.netty.channel.Channel;
 import io.netty.channel.socket.SocketChannel;
 import lombok.Data;
@@ -18,15 +19,17 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class OneNetHttpSession extends OneNetSession {
     private OneNetServerHttpContextConfig contextConfig;
 
-    public OneNetHttpSession(OneNetServerContext oneNetServerContext, SocketChannel ch, Channel channel) {
-        super(oneNetServerContext, ch, channel);
+    public OneNetHttpSession(SocketChannel ch, Channel channel) {
+        super(null, ch, channel);
     }
 
     @Override
-    public String getContextName() {
+    public String getContextName(){
         if(contextConfig!=null) {
-            return contextConfig.getContextName();
+            return this.contextConfig.getContextName();
+        }else
+        {
+            return null;
         }
-        return null;
     }
 }
