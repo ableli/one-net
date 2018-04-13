@@ -20,9 +20,9 @@ public class ClientSession {
     private Channel localChannel;
 
     public void closeFromLocal() {
-        oneNetClientContext.getSessionMap().computeIfPresent(sessionId,(sessionId,clientSession)->{
+        oneNetClientContext.getSessionMap().computeIfPresent(sessionId, (sessionId, clientSession) -> {
             serverSession.getServerChannel().writeAndFlush(
-                    new InvalidSessionPackage(clientSession.getContextName(),sessionId));
+                    new InvalidSessionPackage(clientSession.getContextName(), sessionId));
             oneNetClientContext.removeFromPool(localChannel);
             return null;
         });

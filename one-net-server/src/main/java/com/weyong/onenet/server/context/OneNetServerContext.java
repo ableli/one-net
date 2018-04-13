@@ -1,8 +1,8 @@
 package com.weyong.onenet.server.context;
 
+import com.weyong.onenet.server.Initializer.InternetChannelInitializer;
 import com.weyong.onenet.server.OneNetServer;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
-import com.weyong.onenet.server.Initializer.InternetChannelInitializer;
 import com.weyong.onenet.server.manager.OneNetConnectionManager;
 import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.bootstrap.ServerBootstrap;
@@ -25,27 +25,27 @@ import java.util.Map;
 @NoArgsConstructor
 public class OneNetServerContext {
     protected ServerBootstrap outsideBootstrap = new ServerBootstrap();
-    private Map<Long, OneNetSession> oneNetSessions= new HashMap<>();
+    private Map<Long, OneNetSession> oneNetSessions = new HashMap<>();
     private OneNetConnectionManager oneNetConnectionManager;
     private OneNetServerContextConfig oneNetServerContextConfig;
 
     public OneNetServerContext(OneNetServerContextConfig oneNetServerContextConfig, OneNetServer oneNetServer) {
         this.oneNetServerContextConfig = oneNetServerContextConfig;
         this.setOneNetConnectionManager(oneNetServer.getOneNetTcpConnectionManager());
-        outsideBootstrap.group(OneNetServer.bossGroup,OneNetServer.workerGroup);
+        outsideBootstrap.group(OneNetServer.bossGroup, OneNetServer.workerGroup);
         outsideBootstrap.channel(NioServerSocketChannel.class)
                 .childHandler(new InternetChannelInitializer(this))
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
         try {
-            if(oneNetServerContextConfig.getInternetPort().intValue()==80){
-                 OneNetServerHttpContext.tcp80Initialed = true;
+            if (oneNetServerContextConfig.getInternetPort().intValue() == 80) {
+                OneNetServerHttpContext.tcp80Initialed = true;
             }
             outsideBootstrap.bind(oneNetServerContextConfig.getInternetPort()).sync();
             log.info(String.format("OneNet Server Context: %s started, Port: %d",
                     oneNetServerContextConfig.getContextName(),
                     oneNetServerContextConfig.getInternetPort()));
-        }catch (InterruptedException ex){
+        } catch (InterruptedException ex) {
             log.error(String.format("Start Context %s failed. ex is : %s",
                     oneNetServerContextConfig.getContextName(),
                     ex.getMessage()));
@@ -62,7 +62,7 @@ public class OneNetServerContext {
         return oneNetSession;
     }
 
-    public OneNetServerContextConfig getOneNetServerContextConfig(String name){
+    public OneNetServerContextConfig getOneNetServerContextConfig(String name) {
         return oneNetServerContextConfig;
     }
 }

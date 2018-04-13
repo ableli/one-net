@@ -3,8 +3,8 @@ package com.weyong.onenet.client.session;
 import com.weyong.onenet.client.OneNetClient;
 import com.weyong.onenet.client.config.OnenetClientServerConfig;
 import com.weyong.onenet.client.handler.OneNetChannelInitializer;
-import com.weyong.onenet.dto.InitialRequestPackage;
 import com.weyong.onenet.dto.HeartbeatPackage;
+import com.weyong.onenet.dto.InitialRequestPackage;
 import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -27,18 +27,18 @@ public class OneNetServerSessionManager {
     private Integer reconnectAfterNSeconds;
 
     @Scheduled(fixedRate = 2000)
-    private void heartbeat(){
+    private void heartbeat() {
         oneNetServerSessions.values().stream().forEach(serverSession -> {
-            if(serverSession.getLastHeartbeatTime()==null){
+            if (serverSession.getLastHeartbeatTime() == null) {
                 createServerSession(serverSession);
                 heatrbeatOneChannel(serverSession);
                 return;
             }
             Calendar lastHeartBeatTimeCondition = Calendar.getInstance();
-            lastHeartBeatTimeCondition.add(Calendar.SECOND,reconnectAfterNSeconds);
-            if(lastHeartBeatTimeCondition.getTime().after(serverSession.getLastHeartbeatTime())) {
+            lastHeartBeatTimeCondition.add(Calendar.SECOND, reconnectAfterNSeconds);
+            if (lastHeartBeatTimeCondition.getTime().after(serverSession.getLastHeartbeatTime())) {
                 log.info(String.format("Server Session %s:%d inactive.Try to renew.",
-                        serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort()));
+                        serverSession.getOnenetClientServerConfig().getHostName(), serverSession.getOnenetClientServerConfig().getOneNetPort()));
                 createServerSession(serverSession);
             }
             heatrbeatOneChannel(serverSession);
@@ -49,10 +49,10 @@ public class OneNetServerSessionManager {
         try {
             serverSession.getServerChannel().writeAndFlush(HeartbeatPackage.instance());
             log.debug(String.format("Heartbeat server session %s:%d",
-                    serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort()));
-        }catch (Exception ex) {
+                    serverSession.getOnenetClientServerConfig().getHostName(), serverSession.getOnenetClientServerConfig().getOneNetPort()));
+        } catch (Exception ex) {
             log.error(String.format("Heartbeat server session %s:%d meet ex , and  it is :%s",
-                    serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort(),
+                    serverSession.getOnenetClientServerConfig().getHostName(), serverSession.getOnenetClientServerConfig().getOneNetPort(),
                     ex.getMessage()));
         }
     }
@@ -60,20 +60,20 @@ public class OneNetServerSessionManager {
     private void createServerSession(ServerSession serverSession) {
         try {
             log.info(String.format("Start to connect server session %s:%d",
-                    serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort()));
+                    serverSession.getOnenetClientServerConfig().getHostName(), serverSession.getOnenetClientServerConfig().getOneNetPort()));
             OnenetClientServerConfig onenetClientServerConfig = serverSession.getOnenetClientServerConfig();
             Channel socketChannel = OneNetClient.createChannel(onenetClientServerConfig.getHostName(), onenetClientServerConfig.getOneNetPort(), new OneNetChannelInitializer(serverSession));
             InitialRequestPackage dt = new InitialRequestPackage();
             dt.setClientName(clientName);
             dt.setContextNames(serverSession.getOnenetClientServerConfig().getContexts().stream()
-            .map((oneNetClientContextConfig -> oneNetClientContextConfig.getContextName())).collect(Collectors.toList()));
+                    .map((oneNetClientContextConfig -> oneNetClientContextConfig.getContextName())).collect(Collectors.toList()));
             socketChannel.writeAndFlush(dt);
             serverSession.setServerChannel(socketChannel);
             log.info(String.format("Server session %s:%d established",
-                    serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort()));
-        }catch (Exception ex){
+                    serverSession.getOnenetClientServerConfig().getHostName(), serverSession.getOnenetClientServerConfig().getOneNetPort()));
+        } catch (Exception ex) {
             log.error(String.format("Connection server session %s:%d meet ex , and  it is :%s",
-                    serverSession.getOnenetClientServerConfig().getHostName(),serverSession.getOnenetClientServerConfig().getOneNetPort(),
+                    serverSession.getOnenetClientServerConfig().getHostName(), serverSession.getOnenetClientServerConfig().getOneNetPort(),
                     ex.getMessage()));
         }
     }

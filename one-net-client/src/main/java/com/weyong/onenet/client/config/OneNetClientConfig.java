@@ -17,12 +17,12 @@ public class OneNetClientConfig {
     private List<OnenetClientServerConfig> serverConfigs;
 
     public Integer getReconnectSeconds() {
-        return (reconnectAfterNSeconds==null
-                ||reconnectAfterNSeconds==0
-                ||reconnectAfterNSeconds<5)
+        return (reconnectAfterNSeconds == null
+                || reconnectAfterNSeconds == 0
+                || reconnectAfterNSeconds < 5)
                 ?
-                -5:
-                -1*reconnectAfterNSeconds;
+                -5 :
+                -1 * reconnectAfterNSeconds;
     }
 
 }

@@ -12,6 +12,6 @@ public class ObjectEncoderWithExceptionHandel extends ObjectEncoder {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         ctx.close();
-        log.info("Exception when sending data to one channel:"+cause.getMessage());
+        log.info("Exception when sending data to one channel:" + cause.getMessage());
     }
 }

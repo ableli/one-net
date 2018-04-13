@@ -52,3 +52,5 @@ urltext/submit.sh
 .gradle/3.1/
 .idea/
 !/gradle/wrapper/dists/gradle-3.1-all.zip
+*.ipr
+*.iws

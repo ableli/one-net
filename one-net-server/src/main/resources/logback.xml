@@ -20,10 +20,10 @@
     </appender>
 
     <logger name="com.weyong.onenet">
-        <appender-ref ref="FILE" />
+        <appender-ref ref="FILE"/>
     </logger>
 
     <root level="INFO">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

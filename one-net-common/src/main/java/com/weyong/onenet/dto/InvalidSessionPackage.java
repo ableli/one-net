@@ -10,11 +10,11 @@ import java.nio.ByteBuffer;
  * Created by haoli on 2018/4/7.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class InvalidSessionPackage extends BasePackage {
     public InvalidSessionPackage(String contextName, Long sessionId) {
         super(BasePackage.INVALID_SESSION);
-        this.setContextName( contextName);
+        this.setContextName(contextName);
         this.setSessionId(sessionId);
     }
 
@@ -26,7 +26,7 @@ public class InvalidSessionPackage extends BasePackage {
 
     @Override
     protected void fillBody(ByteBuffer byteBuffer) {
-        stringEncoding(getContextName(),byteBuffer);
+        stringEncoding(getContextName(), byteBuffer);
         byteBuffer.putLong(getSessionId());
     }
 }

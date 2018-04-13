@@ -1,17 +1,10 @@
 // 定义项目用到的maven仓库
-
 allprojects {
     repositories {
         // 先后原则：速度越快越前
         maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-//        maven { url 'http://qc-maven.weimob.com/content/groups/public/' }
-//        maven { url "${nexusRepo}" }
-//        maven { url "${nexusSnapshotsRepo}" }
-//        maven { url 'http://qc-maven.weimob.com/content/repositories/thirdparty/' }
-//        maven { url 'http://maven.weimob.com/content/groups/public/' }
         jcenter()
         mavenCentral()
-        maven {url 'http://maven.weimob.com/content/groups/public/'}
-//        maven { url 'https://raw.githubusercontent.com/ian4hu/cat/mvn-repo/' } /* cat repo */
+        maven { url 'http://maven.weimob.com/content/groups/public/' }
     }
 }

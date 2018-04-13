@@ -5,7 +5,6 @@ import com.weyong.onenet.server.OneNetServer;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
 import com.weyong.onenet.server.config.OneNetServerHttpContextConfig;
 import com.weyong.onenet.server.context.OneNetServerContext;
-import com.weyong.onenet.server.context.OneNetServerHttpContext;
 import com.weyong.onenet.server.session.ClientSession;
 import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,10 +12,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Author by haoli on 2017/4/12.
@@ -26,7 +21,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
     private ClientSession clientSession;
     private OneNetServer oneNetServer;
 
-    public OneNetChannelInboundHandler(OneNetServer oneNetServer){
+    public OneNetChannelInboundHandler(OneNetServer oneNetServer) {
         this.oneNetServer = oneNetServer;
     }
 
@@ -35,8 +30,8 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.channel().close();
         ctx.close();
-        if(clientSession!=null && StringUtils.isNotEmpty(this.clientSession.getClientName())) {
-            log.info(String.format("Client session %s inactive.",clientSession.getClientName()));
+        if (clientSession != null && StringUtils.isNotEmpty(this.clientSession.getClientName())) {
+            log.info(String.format("Client session %s inactive.", clientSession.getClientName()));
             this.clientSession.setClientChannel(null);
         }
     }
@@ -57,26 +52,26 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                     }
                     log.info(String.format("Client %s with contexts [%s] request connections.",
                             requestMsg.getClientName(), StringUtils.join(requestMsg.getContextNames(), ",")));
-                    if(clientSession == null){
-                        clientSession = new ClientSession(requestMsg.getClientName(),ctx.channel());
-                    }else{
+                    if (clientSession == null) {
+                        clientSession = new ClientSession(requestMsg.getClientName(), ctx.channel());
+                    } else {
                         clientSession.setClientChannel(ctx.channel());
                     }
                     requestMsg.getContextNames().stream().forEach((contextName) -> {
                         if (!oneNetServer.getContexts().containsKey(contextName)) {
                             ctx.channel().writeAndFlush(new MessagePackage(
                                     String.format("OneNet %s's config not found in Server", contextName)));
-                        }else{
+                        } else {
                             OneNetServerContextConfig config = oneNetServer.getContexts().get(contextName).getOneNetServerContextConfig(contextName);
                             ctx.channel().writeAndFlush(new InitialResponsePackage(contextName, config.isZip(), config.isAes(), config.getKBps()));
-                            if(config instanceof OneNetServerHttpContextConfig) {
-                                ((OneNetServerHttpContextConfig)config).getDomainRegExs().stream().forEach((regex)->{
+                            if (config instanceof OneNetServerHttpContextConfig) {
+                                ((OneNetServerHttpContextConfig) config).getDomainRegExs().stream().forEach((regex) -> {
                                     oneNetServer.getOneNetHttpConnectionManager().registerClientSession(
-                                            regex,clientSession);
+                                            regex, clientSession);
                                 });
-                            }else{
+                            } else {
                                 oneNetServer.getOneNetTcpConnectionManager().registerClientSession(
-                                        contextName,clientSession);
+                                        contextName, clientSession);
                             }
                         }
                     });
@@ -85,7 +80,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                     OneNetServerContext oneNetServerContext = oneNetServer.getContexts().get(msg.getContextName());
                     if (oneNetServerContext != null) {
                         OneNetSession session = oneNetServerContext.getOneNetSessions().get(msg.getSessionId());
-                        if(session != null) {
+                        if (session != null) {
                             session.closeFromOneNet();
                         }
                     }
@@ -94,18 +89,19 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                     oneNetServerContext = oneNetServer.getContexts().get(msg.getContextName());
                     if (oneNetServerContext == null) {
                         return;
-                    };
+                    }
+                    ;
                     OneNetSession oneNetSession =
                             oneNetServerContext.getOneNetSessions().get(msg.getSessionId());
                     if (oneNetSession != null) {
-                        DataPackage dataPackage = (DataPackage)msg;
+                        DataPackage dataPackage = (DataPackage) msg;
                         byte[] outputData = dataPackage.getRawData();
                         oneNetSession.getInternetChannel().writeAndFlush(outputData);
                     } else {
                         log.info("Can't find exist session :" + msg.getSessionId());
                     }
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }

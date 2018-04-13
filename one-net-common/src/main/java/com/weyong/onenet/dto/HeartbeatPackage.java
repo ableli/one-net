@@ -9,12 +9,13 @@ import java.nio.ByteBuffer;
  * Created by haoli on 2018/4/7.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class HeartbeatPackage extends BasePackage {
+    private static HeartbeatPackage heartbeatPackage = new HeartbeatPackage();
+
     public HeartbeatPackage() {
         super(DataPackage.HEART_BEAT);
     }
-    private static HeartbeatPackage heartbeatPackage = new HeartbeatPackage();
 
     public static BasePackage instance() {
         return heartbeatPackage;

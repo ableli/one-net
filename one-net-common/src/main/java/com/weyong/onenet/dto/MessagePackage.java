@@ -10,9 +10,10 @@ import java.nio.ByteBuffer;
  * Created by haoli on 2018/4/7.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class MessagePackage extends BasePackage {
     private String msg;
+
     public MessagePackage(String msg) {
         super(DataPackage.MESSAGE);
         this.msg = msg;
@@ -25,6 +26,6 @@ public class MessagePackage extends BasePackage {
 
     @Override
     protected void fillBody(ByteBuffer byteBuffer) {
-        stringEncoding(msg,byteBuffer);
+        stringEncoding(msg, byteBuffer);
     }
 }

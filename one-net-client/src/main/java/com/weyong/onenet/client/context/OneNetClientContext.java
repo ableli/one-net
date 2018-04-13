@@ -24,18 +24,18 @@ import java.util.Map;
 @Data
 @Slf4j
 public class OneNetClientContext {
-    private  ObjectPool<Channel> localPool;
+    private ObjectPool<Channel> localPool;
     private OneNetClientContextConfig oneNetClientContextConfig;
-    private Map<Long,ClientSession> sessionMap = new HashMap<>();
+    private Map<Long, ClientSession> sessionMap = new HashMap<>();
     private boolean zip;
     private boolean aes;
     private int kBps;
 
     public OneNetClientContext(OneNetClientContextConfig oneNetClientContextConfig) {
         this.oneNetClientContextConfig = oneNetClientContextConfig;
-        if(oneNetClientContextConfig.isLocalPool()){
+        if (oneNetClientContextConfig.isLocalPool()) {
             localPool = new GenericObjectPool<Channel>(new LocalChannelFactory(
-                    ()-> OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(),oneNetClientContextConfig.getPort(),new LocalChannelInitializer(null))
+                    () -> OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(), oneNetClientContextConfig.getPort(), new LocalChannelInitializer(null))
             ),
                     getGenericObjectPoolConfig());
         }
@@ -58,47 +58,47 @@ public class OneNetClientContext {
 
     public Channel getContextLocalChannel(ClientSession clientSession) {
         Channel channel = null;
-        if(!oneNetClientContextConfig.isLocalPool()){
+        if (!oneNetClientContextConfig.isLocalPool()) {
             channel = OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(),
                     oneNetClientContextConfig.getPort(),
                     new LocalChannelInitializer(clientSession));
-        }else{
+        } else {
             try {
-                channel =  localPool.borrowObject();
+                channel = localPool.borrowObject();
             } catch (Exception e) {
-                throw new RuntimeException("Can't borrow object from pool. - "+e.getMessage());
+                throw new RuntimeException("Can't borrow object from pool. - " + e.getMessage());
             }
             ChannelHandler handler = channel.pipeline().get(LocalChannelInitializer.LOCAL_RESPONSE_HANDLER);
-            ((LocalInboudHandler)handler).setClientSession(clientSession);
+            ((LocalInboudHandler) handler).setClientSession(clientSession);
             ChannelTrafficShapingHandler channelTrafficShapingHandler =
-                    (ChannelTrafficShapingHandler)channel.pipeline().get(LocalChannelInitializer.CHANNEL_TRAFFIC_HANDLER);
-            channelTrafficShapingHandler.setReadLimit(clientSession.getOneNetClientContext().kBps*1024);
-            channelTrafficShapingHandler.setWriteLimit(clientSession.getOneNetClientContext().kBps*1024);
-            log.debug(localPool.getNumActive()+"-"+localPool.getNumIdle());
+                    (ChannelTrafficShapingHandler) channel.pipeline().get(LocalChannelInitializer.CHANNEL_TRAFFIC_HANDLER);
+            channelTrafficShapingHandler.setReadLimit(clientSession.getOneNetClientContext().kBps * 1024);
+            channelTrafficShapingHandler.setWriteLimit(clientSession.getOneNetClientContext().kBps * 1024);
+            log.debug(localPool.getNumActive() + "-" + localPool.getNumIdle());
         }
         return channel;
     }
 
     public void returnChannel(Channel channel) {
-        if(!oneNetClientContextConfig.isLocalPool()){
+        if (!oneNetClientContextConfig.isLocalPool()) {
             channel.close();
-        }else {
+        } else {
             log.debug("Before return :" + localPool.getNumActive() + "-" + localPool.getNumIdle());
             try {
                 localPool.returnObject(channel);
             } catch (Exception e) {
-                log.info(e.getMessage()+localPool.getNumActive() + "-" + localPool.getNumIdle());
+                log.info(e.getMessage() + localPool.getNumActive() + "-" + localPool.getNumIdle());
             }
             log.debug("After return :" + localPool.getNumActive() + "-" + localPool.getNumIdle());
         }
     }
 
     public void removeFromPool(Channel channel) {
-        if(oneNetClientContextConfig.isLocalPool()){
+        if (oneNetClientContextConfig.isLocalPool()) {
             try {
                 localPool.invalidateObject(channel);
             } catch (Exception e) {
-                log.info(e.getMessage()+localPool.getNumActive() + "-" + localPool.getNumIdle());
+                log.info(e.getMessage() + localPool.getNumActive() + "-" + localPool.getNumIdle());
             }
         }
     }

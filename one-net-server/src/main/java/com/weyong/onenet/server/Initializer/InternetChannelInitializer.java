@@ -17,20 +17,21 @@ import lombok.extern.slf4j.Slf4j;
 public class InternetChannelInitializer extends ChannelInitializer<SocketChannel> {
     private OneNetServerContext oneNetServerContext;
 
-    public InternetChannelInitializer(OneNetServerContext oneNetServerContext){
+    public InternetChannelInitializer(OneNetServerContext oneNetServerContext) {
         this.oneNetServerContext = oneNetServerContext;
     }
+
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         Channel oneNetChannel =
                 oneNetServerContext.getOneNetConnectionManager().getAvailableChannel(
                         oneNetServerContext.getOneNetServerContextConfig().getContextName());
-        if(oneNetChannel == null){
+        if (oneNetChannel == null) {
             ch.close();
-        }else {
-            OneNetSession oneNetSession =oneNetServerContext.createSession(ch ,oneNetChannel);
+        } else {
+            OneNetSession oneNetSession = oneNetServerContext.createSession(ch, oneNetChannel);
             oneNetSession.setOneNetServerContext(oneNetServerContext);
-            int bytePreSecond = oneNetServerContext.getOneNetServerContextConfig().getKBps()*1024;
+            int bytePreSecond = oneNetServerContext.getOneNetServerContextConfig().getKBps() * 1024;
             ch.pipeline()
                     .addLast(new ChannelTrafficShapingHandler(bytePreSecond,
                             bytePreSecond))

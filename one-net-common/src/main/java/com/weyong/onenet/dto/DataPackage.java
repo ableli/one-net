@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
  * Created by haoli on 2018/4/7.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class DataPackage extends BasePackage {
     private byte[] data;
     private Boolean zip = false;
@@ -25,16 +25,6 @@ public class DataPackage extends BasePackage {
         this.setData(currentData);
         this.setAes(aes);
         this.setZip(gzip);
-    }
-
-    public byte[] getRawData() {
-        if (aes) {
-            data = WXBizMsgCrypt.getDecryptBytes(data);
-        }
-        if (zip) {
-            data = ByteZipUtil.unGzip(data);
-        }
-        return data;
     }
 
     public DataPackage(ByteBuf byteBuf) {
@@ -50,12 +40,22 @@ public class DataPackage extends BasePackage {
         byteBuf.readBytes(data);
     }
 
+    public byte[] getRawData() {
+        if (aes) {
+            data = WXBizMsgCrypt.getDecryptBytes(data);
+        }
+        if (zip) {
+            data = ByteZipUtil.unGzip(data);
+        }
+        return data;
+    }
+
     public byte[] getData() {
         byte[] output = data;
-        if(zip){
-            output =ByteZipUtil.gzip(output);
+        if (zip) {
+            output = ByteZipUtil.gzip(output);
         }
-        if(aes){
+        if (aes) {
             output = WXBizMsgCrypt.getEncryptBytes(output);
         }
         return output;
@@ -63,10 +63,10 @@ public class DataPackage extends BasePackage {
 
     @Override
     protected void fillBody(ByteBuffer byteBuffer) {
-        stringEncoding(this.getContextName(),byteBuffer);
+        stringEncoding(this.getContextName(), byteBuffer);
         byteBuffer.putLong(getSessionId());
-        int boolValues = getBoolValues(zip,aes);
-        byteBuffer.put((byte)boolValues);
+        int boolValues = getBoolValues(zip, aes);
+        byteBuffer.put((byte) boolValues);
         byte[] output = getData();
         byteBuffer.putInt(output.length);
         byteBuffer.put(output);

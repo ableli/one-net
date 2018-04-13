@@ -2,11 +2,8 @@ package com.weyong.codec;
 
 import com.weyong.onenet.dto.BasePackage;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-
-import java.io.ObjectInputStream;
 
 /**
  * Created by haoli on 2018/4/7.
@@ -22,7 +19,7 @@ public class OneNetMsgDecoder extends LengthFieldBasedFrameDecoder {
         if (frame == null) {
             return null;
         }
-        BasePackage basePackage =  BasePackage.fromBytes(frame);
+        BasePackage basePackage = BasePackage.fromBytes(frame);
         in.release();
         return basePackage;
     }

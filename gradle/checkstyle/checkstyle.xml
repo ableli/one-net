@@ -131,7 +131,7 @@
         </module>
         <module name="RegexpSinglelineJava">
             <property name="format" value="created by"/>
-            <property name="ignoreCase" value="true" />
+            <property name="ignoreCase" value="true"/>
         </module>
         <!-- 检查并确保所有的常量中的L都是大写的。因为小写的字母l跟数字1太象了 -->
         <module name="UpperEll"/>

@@ -1,8 +1,6 @@
 package com.weyong.onenet.server.handler;
 
 import com.weyong.onenet.dto.DataPackage;
-import com.weyong.onenet.server.context.OneNetServerContext;
-import com.weyong.onenet.server.context.OneNetServerHttpContext;
 import com.weyong.onenet.server.session.OneNetHttpSession;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -11,18 +9,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
-
 /**
  * Created by hao.li on 2017/4/12.
  */
 @Slf4j
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class HttpRawDataHandler extends HttpRequestDecoder {
 
-    private static int frameSize  = 1047576;
+    private static int frameSize = 1047576;
     private OneNetHttpSession httpSession;
 
     public HttpRawDataHandler(OneNetHttpSession httpSession) {
@@ -32,7 +27,7 @@ public class HttpRawDataHandler extends HttpRequestDecoder {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf in = (ByteBuf) msg;
-        while(in.readableBytes()>0) {
+        while (in.readableBytes() > 0) {
             int length = frameSize < in.readableBytes() ? frameSize : in.readableBytes();
             byte[] currentData = new byte[length];
             in.readBytes(currentData, 0, length);
@@ -45,7 +40,7 @@ public class HttpRawDataHandler extends HttpRequestDecoder {
             httpSession.getQueue().add(dt);
         }
         in.resetReaderIndex();
-        super.channelRead(ctx,msg);
+        super.channelRead(ctx, msg);
     }
 
 }

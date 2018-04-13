@@ -13,15 +13,16 @@ import java.util.function.Supplier;
  * Created by haoli on 2017/4/17.
  */
 @Slf4j
-public class LocalChannelFactory  extends BasePooledObjectFactory<Channel> {
+public class LocalChannelFactory extends BasePooledObjectFactory<Channel> {
     private Supplier<Channel> channelSupplier;
+
     public LocalChannelFactory(Supplier<Channel> supplier) {
         this.channelSupplier = supplier;
     }
 
     @Override
     public Channel create() throws Exception {
-       return channelSupplier.get();
+        return channelSupplier.get();
     }
 
     @Override
@@ -31,8 +32,8 @@ public class LocalChannelFactory  extends BasePooledObjectFactory<Channel> {
 
     @Override
     public boolean validateObject(PooledObject<Channel> p) {
-        if(!p.getObject().isActive()){
-            log.debug(String.format("Local target channel is inactive. exist time:%d",System.currentTimeMillis()-p.getCreateTime()));
+        if (!p.getObject().isActive()) {
+            log.debug(String.format("Local target channel is inactive. exist time:%d", System.currentTimeMillis() - p.getCreateTime()));
             return false;
         }
         return true;
@@ -40,7 +41,7 @@ public class LocalChannelFactory  extends BasePooledObjectFactory<Channel> {
 
     @Override
     public void passivateObject(PooledObject<Channel> pooledObject) {
-        ChannelHandler handler =  pooledObject.getObject().pipeline().get(LocalChannelInitializer.LOCAL_RESPONSE_HANDLER);
-        ((LocalInboudHandler)handler).setClientSession(null);
+        ChannelHandler handler = pooledObject.getObject().pipeline().get(LocalChannelInitializer.LOCAL_RESPONSE_HANDLER);
+        ((LocalInboudHandler) handler).setClientSession(null);
     }
 }

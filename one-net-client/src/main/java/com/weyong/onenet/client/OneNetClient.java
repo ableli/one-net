@@ -29,27 +29,27 @@ public class OneNetClient {
     private String clientName;
 
     @Autowired
-    public  OneNetClient(OneNetServerSessionManager oneNetServerSessionManager, OneNetClientConfig oneNetClientConfig) throws Exception {
+    public OneNetClient(OneNetServerSessionManager oneNetServerSessionManager, OneNetClientConfig oneNetClientConfig) throws Exception {
         b = new Bootstrap();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
         b.group(workerGroup).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true);
         oneNetServerSessionManager.setClientName(oneNetClientConfig.getServerName());
         oneNetServerSessionManager.setReconnectAfterNSeconds(oneNetClientConfig.getReconnectSeconds());
-        if(!CollectionUtils.isEmpty(oneNetClientConfig.getServerConfigs())){
+        if (!CollectionUtils.isEmpty(oneNetClientConfig.getServerConfigs())) {
             clientName = oneNetClientConfig.getServerName();
             oneNetClientConfig.getServerConfigs().stream().forEach(
                     (onenetClientServerConfig) ->
-                        oneNetServerSessionManager.getOneNetServerSessions()
-                                .putIfAbsent(oneNetClientConfig.getServerName(),
-                                        new ServerSession(onenetClientServerConfig))
+                            oneNetServerSessionManager.getOneNetServerSessions()
+                                    .putIfAbsent(oneNetClientConfig.getServerName(),
+                                            new ServerSession(onenetClientServerConfig))
             );
         }
     }
 
-    public static Channel createChannel(final String ip, final int port,ChannelInitializer channelInitializer) {
+    public static Channel createChannel(final String ip, final int port, ChannelInitializer channelInitializer) {
         ChannelFuture channelFuture = null;
         try {
-            channelFuture = b.handler(channelInitializer).connect(ip,port).sync();
+            channelFuture = b.handler(channelInitializer).connect(ip, port).sync();
             return channelFuture.channel();
         } catch (InterruptedException e) {
             e.printStackTrace();

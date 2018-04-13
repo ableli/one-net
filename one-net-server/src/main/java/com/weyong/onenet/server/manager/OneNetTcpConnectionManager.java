@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 public class OneNetTcpConnectionManager extends OneNetConnectionManager {
     public Channel getAvailableChannel(String contextName) {
-        if(!this.getContextNameSessionMap().containsKey(contextName)){
+        if (!this.getContextNameSessionMap().containsKey(contextName)) {
             return null;
         }
         List<ClientSession> sessions = getContextNameSessionMap().get(contextName);
@@ -21,12 +21,11 @@ public class OneNetTcpConnectionManager extends OneNetConnectionManager {
     }
 
 
-
     public ClientSession computeClientSession(String clientName, List<String> contextNames, Channel channel) {
-        ClientSession clientSession = new ClientSession(clientName,channel);
-        contextNames.stream().forEach((contextName)->{
-            List<ClientSession> sessions = getContextNameSessionMap().computeIfAbsent(contextName,(name)->new LinkedList<ClientSession>());
-            log.info(String.format("Client context %s -> %s added.",clientName ,contextName));
+        ClientSession clientSession = new ClientSession(clientName, channel);
+        contextNames.stream().forEach((contextName) -> {
+            List<ClientSession> sessions = getContextNameSessionMap().computeIfAbsent(contextName, (name) -> new LinkedList<ClientSession>());
+            log.info(String.format("Client context %s -> %s added.", clientName, contextName));
             sessions.add(clientSession);
         });
         return clientSession;
