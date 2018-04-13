@@ -2,7 +2,6 @@ package com.weyong.onenet.server.Initializer;
 
 import com.weyong.onenet.server.context.OneNetServerHttpContext;
 import com.weyong.onenet.server.handler.HttpRawDataHandler;
-import com.weyong.onenet.server.handler.HttpRequestHandler;
 import com.weyong.onenet.server.session.OneNetHttpSession;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
@@ -23,7 +22,7 @@ public class HttpChannelInitializer extends ChannelInitializer<SocketChannel> {
                 .addLast(trafficHandler, new ChannelTrafficShapingHandler(bytePreSecond,
                         bytePreSecond))
                 .addLast(new HttpRawDataHandler(httpSession))
-                .addLast(new HttpRequestHandler(httpSession))
+                //.addLast(new HttpRequestHandler(httpSession))
                 .addLast(new ByteArrayEncoder());
 
     }

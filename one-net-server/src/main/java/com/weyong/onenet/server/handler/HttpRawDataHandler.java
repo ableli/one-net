@@ -1,13 +1,18 @@
 package com.weyong.onenet.server.handler;
 
 import com.weyong.onenet.dto.DataPackage;
+import com.weyong.onenet.server.Initializer.HttpChannelInitializer;
+import com.weyong.onenet.server.context.OneNetServerHttpContext;
 import com.weyong.onenet.server.session.OneNetHttpSession;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.traffic.ChannelTrafficShapingHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by hao.li on 2017/4/12.
@@ -15,10 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class HttpRawDataHandler extends HttpRequestDecoder {
-
-    private static int frameSize = 1047576;
+public class HttpRawDataHandler extends HttpObjectDecoder {
     private OneNetHttpSession httpSession;
+    private String hostName;
 
     public HttpRawDataHandler(OneNetHttpSession httpSession) {
         this.httpSession = httpSession;
@@ -27,20 +31,59 @@ public class HttpRawDataHandler extends HttpRequestDecoder {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf in = (ByteBuf) msg;
-        while (in.readableBytes() > 0) {
-            int length = frameSize < in.readableBytes() ? frameSize : in.readableBytes();
-            byte[] currentData = new byte[length];
-            in.readBytes(currentData, 0, length);
-            DataPackage dt = new DataPackage(
-                    null,
-                    httpSession.getSessionId(),
-                    currentData,
-                    false,
-                    false);
-            httpSession.getQueue().add(dt);
-        }
+        int length =  in.readableBytes();
+        byte[] currentData = new byte[length];
+        in.readBytes(currentData, 0, length);
         in.resetReaderIndex();
         super.channelRead(ctx, msg);
+        if (httpSession.getOneNetChannel() != null) {
+            httpSession.getOneNetChannel().writeAndFlush(new DataPackage(
+                    httpSession.getContextName(),
+                    httpSession.getSessionId(),
+                    currentData,
+                    httpSession.getContextConfig().isZip(),
+                    httpSession.getContextConfig().isAes()));
+
+            int kBps = httpSession.getContextConfig().getKBps()*1024;
+            ChannelTrafficShapingHandler trafficShapingHandler =  ((ChannelTrafficShapingHandler) ctx.pipeline().get(HttpChannelInitializer.trafficHandler));
+            trafficShapingHandler.setWriteLimit(kBps);
+            trafficShapingHandler.setReadLimit(kBps);
+        } else {
+            log.info(String.format("Can't find client session for http context %s.",
+                    hostName));
+            ctx.close();
+        }
     }
 
+    @Override
+    protected boolean isDecodingRequest() {
+        return StringUtils.isEmpty(httpSession.getContextName());
+    }
+
+    @Override
+    protected HttpMessage createMessage(String[] initialLine) throws Exception {
+        HttpMessage msg =  new DefaultHttpRequest(
+                HttpVersion.valueOf(initialLine[2]),
+                HttpMethod.valueOf(initialLine[0]), initialLine[1], validateHeaders);
+        if (msg instanceof HttpRequest) {
+            HttpRequest request = (HttpRequest) msg;
+            HttpHeaders headers = request.headers();
+            hostName = headers.get("HOST");
+            if (StringUtils.isNotEmpty(hostName)) {
+                httpSession.setContextConfig(OneNetServerHttpContext.instance.getContextConfig(hostName));
+                if (httpSession.getContextConfig() != null && httpSession.getOneNetChannel() == null) {
+                    Channel clientChannel = OneNetServerHttpContext.instance.getOneNetConnectionManager().getAvailableChannel(hostName);
+                    if (clientChannel != null) {
+                        httpSession.setOneNetChannel(clientChannel);
+                    }
+                }
+            }
+        }
+        return msg;
+    }
+
+    @Override
+    protected HttpMessage createInvalidMessage() {
+        return new DefaultFullHttpRequest(HttpVersion.HTTP_1_0, HttpMethod.GET, "/bad-request", validateHeaders);
+    }
 }

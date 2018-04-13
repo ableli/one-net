@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class OneNetHttpSession extends OneNetSession {
-    ConcurrentLinkedDeque<DataPackage> queue = new ConcurrentLinkedDeque<>();
     private OneNetServerHttpContextConfig contextConfig;
 
     public OneNetHttpSession(OneNetServerContext oneNetServerContext, SocketChannel ch, Channel channel) {
@@ -25,6 +24,9 @@ public class OneNetHttpSession extends OneNetSession {
 
     @Override
     public String getContextName() {
-        return contextConfig.getContextName();
+        if(contextConfig!=null) {
+            return contextConfig.getContextName();
+        }
+        return null;
     }
 }
