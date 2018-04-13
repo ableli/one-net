@@ -1,8 +1,9 @@
-package com.weyong.onenet.server.handler;
+package com.weyong.onenet.server.Initializer;
 
 import com.weyong.codec.OneNetMsgDecoder;
 import com.weyong.codec.OneNetMsgEncoder;
 import com.weyong.onenet.server.OneNetServer;
+import com.weyong.onenet.server.handler.OneNetChannelInboundHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
@@ -25,9 +26,6 @@ public class OneNetChannelInitializer extends ChannelInitializer<SocketChannel> 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         ch.pipeline()
-//                .addLast(new LoggingHandler(LogLevel.DEBUG))
-//                .addLast(new ObjectEncoder())
-//                .addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(this.getClass().getClassLoader())))
                 .addLast(new OneNetMsgDecoder())
                         .addLast(new OneNetMsgEncoder())
         .addLast(new OneNetChannelInboundHandler(this.oneNetServer));

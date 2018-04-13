@@ -23,11 +23,9 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class HttpRawDataHandler extends HttpRequestDecoder {
 
     private static int frameSize  = 1047576;
-    private OneNetServerHttpContext oneNetServerContext;
     private OneNetHttpSession httpSession;
 
-    public HttpRawDataHandler(OneNetServerHttpContext oneNetServerContext, OneNetHttpSession httpSession) {
-        this.oneNetServerContext = oneNetServerContext;
+    public HttpRawDataHandler(OneNetHttpSession httpSession) {
         this.httpSession = httpSession;
     }
 
@@ -39,11 +37,11 @@ public class HttpRawDataHandler extends HttpRequestDecoder {
             byte[] currentData = new byte[length];
             in.readBytes(currentData, 0, length);
             DataPackage dt = new DataPackage(
-                    httpSession.getContextName(),
+                    null,
                     httpSession.getSessionId(),
                     currentData,
-                    httpSession.getOneNetServerContext().getOneNetServerContextConfig().isZip(),
-                    httpSession.getOneNetServerContext().getOneNetServerContextConfig().isAes());
+                    false,
+                    false);
             httpSession.getQueue().add(dt);
         }
         in.resetReaderIndex();

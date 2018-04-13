@@ -1,5 +1,6 @@
 package com.weyong.onenet.server.handler;
 
+import com.weyong.onenet.dto.DataPackage;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import com.weyong.onenet.server.context.OneNetServerHttpContext;
 import com.weyong.onenet.server.session.OneNetHttpSession;
@@ -20,23 +21,23 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 @Slf4j
 public class HttpRequestHandler extends SimpleChannelInboundHandler<Object> {
-    private OneNetServerHttpContext httpContext;
     private OneNetHttpSession httpSession;
 
-    public HttpRequestHandler(OneNetServerHttpContext oneNetServerContext, OneNetHttpSession httpSession) {
-        this.httpContext = oneNetServerContext;
+    public HttpRequestHandler(OneNetHttpSession httpSession) {
         this.httpSession = httpSession;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) {
+        String hostName = "";
         if (msg instanceof HttpRequest) {
             HttpRequest request = (HttpRequest) msg;
             HttpHeaders headers = request.headers();
-            String hostName = headers.get("HOST");
+            hostName =headers.get("HOST");
             if (StringUtils.isNotEmpty(hostName)) {
-                if (httpSession.getOneNetChannel() == null) {
-                    Channel clientChannel = httpContext.getOneNetConnectionManager().getAvailableChannel(hostName);
+                httpSession.setContextConfig(OneNetServerHttpContext.instance.getContextConfig(hostName));
+                if (httpSession.getContextConfig() != null && httpSession.getOneNetChannel() == null) {
+                    Channel clientChannel = OneNetServerHttpContext.instance.getOneNetConnectionManager().getAvailableChannel(hostName);
                     if (clientChannel != null) {
                         httpSession.setOneNetChannel(clientChannel);
                     }
@@ -45,12 +46,15 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<Object> {
         }
         if(httpSession.getOneNetChannel() != null){
             while(httpSession.getQueue().size()>0){
-                //log.info("Http Data Trans Dequeue.");
-                httpSession.getOneNetChannel().writeAndFlush(httpSession.getQueue().poll());
+                DataPackage dataPackage = httpSession.getQueue().poll();
+                dataPackage.setContextName(httpSession.getContextName());
+                dataPackage.setAes(httpSession.getContextConfig().isAes());
+                dataPackage.setZip(httpSession.getContextConfig().isZip());
+                httpSession.getOneNetChannel().writeAndFlush(dataPackage);
             }
         }else {
             log.info(String.format("Can't find client session for http context %s.",
-                    httpContext.getOneNetServerContextConfig().getContextName()));
+                    hostName));
             ctx.close();
         }
     }

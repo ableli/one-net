@@ -1,6 +1,7 @@
-package com.weyong.onenet.server.session;
+package com.weyong.onenet.server.manager;
 
 import com.weyong.onenet.server.context.OneNetServerContext;
+import com.weyong.onenet.server.session.ClientSession;
 import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -51,4 +52,5 @@ public abstract class OneNetConnectionManager {
             return sessions;
         });
     }
+
 }

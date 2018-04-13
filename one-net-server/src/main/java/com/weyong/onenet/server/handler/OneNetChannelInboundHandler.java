@@ -67,7 +67,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                             ctx.channel().writeAndFlush(new MessagePackage(
                                     String.format("OneNet %s's config not found in Server", contextName)));
                         }else{
-                            OneNetServerContextConfig config = oneNetServer.getContexts().get(contextName).getOneNetServerContextConfig();
+                            OneNetServerContextConfig config = oneNetServer.getContexts().get(contextName).getOneNetServerContextConfig(contextName);
                             ctx.channel().writeAndFlush(new InitialResponsePackage(contextName, config.isZip(), config.isAes(), config.getKBps()));
                             if(config instanceof OneNetServerHttpContextConfig) {
                                 ((OneNetServerHttpContextConfig)config).getDomainRegExs().stream().forEach((regex)->{

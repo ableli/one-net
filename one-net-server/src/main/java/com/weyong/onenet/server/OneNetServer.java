@@ -5,9 +5,9 @@ import com.weyong.onenet.server.config.OneNetServerContextConfig;
 import com.weyong.onenet.server.config.OneNetServerHttpContextConfig;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import com.weyong.onenet.server.context.OneNetServerHttpContext;
-import com.weyong.onenet.server.handler.OneNetChannelInitializer;
-import com.weyong.onenet.server.session.OneNetHttpConnectionManager;
-import com.weyong.onenet.server.session.OneNetTcpConnectionManager;
+import com.weyong.onenet.server.Initializer.OneNetChannelInitializer;
+import com.weyong.onenet.server.manager.OneNetHttpConnectionManager;
+import com.weyong.onenet.server.manager.OneNetTcpConnectionManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -21,6 +21,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -61,18 +62,19 @@ public class OneNetServer {
             }
             if(!CollectionUtils.isEmpty(oneNetServerConfig.getHttpContexts())) {
                 log.info(String.format("Start Http Contexts, size is : %d", oneNetServerConfig.getHttpContexts().size()));
-                oneNetServerConfig.getHttpContexts().stream().forEach((contextConfig) -> {
-                    createHttpContext(contextConfig);
-                });
+                createHttpContext(oneNetServerConfig.getHttpContexts());
             }
         } catch (InterruptedException e) {
             log.error(String.format("Server OneNet port %d start failed. The reason is :%s",oneNetServerConfig.getOneNetPort(),e.getMessage()));
         }
     }
 
-    private void createHttpContext(OneNetServerHttpContextConfig contextConfig) {
-        contexts.computeIfAbsent(contextConfig.getContextName()
-                ,(contextName)->new OneNetServerHttpContext(contextConfig,this));
+    private void createHttpContext(List<OneNetServerHttpContextConfig> contextConfigs) {
+        OneNetServerHttpContext httpContext = OneNetServerHttpContext.instance(contextConfigs,this);
+        contextConfigs.stream().forEach((config)->{
+            contexts.putIfAbsent(config.getContextName()
+                    ,httpContext);
+        });
     }
 
     public void createContext(OneNetServerContextConfig oneNetContextConfig) {

@@ -27,7 +27,12 @@ oneNetClient:
           port: 3386
           localPool: false
         -
-          contextName: test
+          contextName: test1
           localhost: localhost
           port: 88
+          localPool: false
+        -
+          contextName: test2
+          localhost: localhost
+          port: 82
           localPool: false

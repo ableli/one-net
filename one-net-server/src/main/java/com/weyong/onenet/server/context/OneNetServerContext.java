@@ -2,8 +2,8 @@ package com.weyong.onenet.server.context;
 
 import com.weyong.onenet.server.OneNetServer;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
-import com.weyong.onenet.server.handler.InternetChannelInitializer;
-import com.weyong.onenet.server.session.OneNetConnectionManager;
+import com.weyong.onenet.server.Initializer.InternetChannelInitializer;
+import com.weyong.onenet.server.manager.OneNetConnectionManager;
 import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -57,8 +57,12 @@ public class OneNetServerContext {
     }
 
     public OneNetSession createSession(SocketChannel ch, Channel oneNetChannel) {
-       OneNetSession oneNetSession = new OneNetSession(this, ch, oneNetChannel);
-       oneNetSessions.put(oneNetSession.getSessionId(), oneNetSession);
-       return oneNetSession;
+        OneNetSession oneNetSession = new OneNetSession(this, ch, oneNetChannel);
+        oneNetSessions.put(oneNetSession.getSessionId(), oneNetSession);
+        return oneNetSession;
+    }
+
+    public OneNetServerContextConfig getOneNetServerContextConfig(String name){
+        return oneNetServerContextConfig;
     }
 }

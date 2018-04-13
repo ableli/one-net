@@ -1,6 +1,7 @@
-package com.weyong.onenet.server.handler;
+package com.weyong.onenet.server.Initializer;
 
 import com.weyong.onenet.server.context.OneNetServerContext;
+import com.weyong.onenet.server.handler.InternetChannelInboundHandler;
 import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;

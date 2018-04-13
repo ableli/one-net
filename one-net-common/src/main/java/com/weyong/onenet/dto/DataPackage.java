@@ -13,8 +13,7 @@ import java.nio.ByteBuffer;
  */
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class DataPackage extends BasePackage
-{
+public class DataPackage extends BasePackage {
     private byte[] data;
     private Boolean zip = false;
     private Boolean aes = false;
@@ -24,21 +23,15 @@ public class DataPackage extends BasePackage
         this.setContextName(contextName);
         this.setSessionId(sessionId);
         this.setData(currentData);
-        if(gzip) {
-            this.setData(ByteZipUtil.gzip(this.getData()));
-            this.setZip(gzip);
-        }
-        if(aes){
-            this.setData(WXBizMsgCrypt.getEncryptBytes(this.getData()));
-            this.setAes(aes);
-        }
+        this.setAes(aes);
+        this.setZip(gzip);
     }
 
     public byte[] getRawData() {
-        if(aes){
+        if (aes) {
             data = WXBizMsgCrypt.getDecryptBytes(data);
         }
-        if(zip){
+        if (zip) {
             data = ByteZipUtil.unGzip(data);
         }
         return data;
@@ -48,13 +41,24 @@ public class DataPackage extends BasePackage
         super(BasePackage.DATA);
         this.setContextName(stringDecoding(byteBuf));
         this.setSessionId(byteBuf.readLong());
-        int boolValues = (int)byteBuf.readByte();
-        aes = boolValues%2 == 1;
+        int boolValues = (int) byteBuf.readByte();
+        aes = boolValues % 2 == 1;
         boolValues = boolValues >> 1;
-        zip = boolValues%2 == 1;
+        zip = boolValues % 2 == 1;
         int dataLength = byteBuf.readInt();
         data = new byte[dataLength];
         byteBuf.readBytes(data);
+    }
+
+    public byte[] getData() {
+        byte[] output = data;
+        if(zip){
+            output =ByteZipUtil.gzip(output);
+        }
+        if(aes){
+            output = WXBizMsgCrypt.getEncryptBytes(output);
+        }
+        return output;
     }
 
     @Override
@@ -63,8 +67,9 @@ public class DataPackage extends BasePackage
         byteBuffer.putLong(getSessionId());
         int boolValues = getBoolValues(zip,aes);
         byteBuffer.put((byte)boolValues);
-        byteBuffer.putInt(data.length);
-        byteBuffer.put(data);
+        byte[] output = getData();
+        byteBuffer.putInt(output.length);
+        byteBuffer.put(output);
     }
 
 

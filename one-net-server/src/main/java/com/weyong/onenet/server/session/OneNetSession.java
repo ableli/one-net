@@ -38,7 +38,7 @@ public class OneNetSession {
     }
 
     public String getContextName() {
-        return oneNetServerContext.getOneNetServerContextConfig().getContextName();
+            return oneNetServerContext.getOneNetServerContextConfig().getContextName();
     }
 
     public void closeFromOneNet() {

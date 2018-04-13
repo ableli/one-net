@@ -26,10 +26,18 @@ oneNetServer:
       aes: false
   httpContexts:
     -
-      contextName: test
+      contextName: test1
       zip: true
       aes: false
       kBps: 200
       domainRegExs:
         -
-          \w+.test.com
+          \w+.test1.com
+    -
+      contextName: test2
+      zip: true
+      aes: false
+      kBps: 200
+      domainRegExs:
+        -
+          \w+.test2.com

@@ -2,6 +2,7 @@ package com.weyong.onenet.server.config;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -16,5 +17,10 @@ public class OneNetServerHttpContextConfig extends OneNetServerContextConfig {
     @Override
     public Integer getInternetPort(){
         return 80;
+    }
+
+    @Override
+    public String toString(){
+        return String.format("Context: %s, domains: [%s]",this.getContextName(), StringUtils.join(domainRegExs,","));
     }
 }
