@@ -32,10 +32,7 @@ public class OneNetServerContext {
         this.oneNetServerContextConfig = oneNetServerContextConfig;
         this.oneNetConnectionManager = oneNetConnectionManager;
         if (oneNetServerContextConfig.getInternetPort().intValue() == 80) {
-            log.info(String.format("OneNet Server Context: %s started, Port: %d",
-                    oneNetServerContextConfig.getContextName(),
-                    oneNetServerContextConfig.getInternetPort()));
-            return;
+            OneNetServerHttpContextHolder.tcp80Initialed = true;
         }
         ServerBootstrap outsideBootstrap = new ServerBootstrap();
         outsideBootstrap.group(OneNetServer.bossGroup, OneNetServer.workerGroup);
