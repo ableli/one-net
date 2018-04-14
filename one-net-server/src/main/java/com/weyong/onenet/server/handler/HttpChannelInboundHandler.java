@@ -2,8 +2,9 @@ package com.weyong.onenet.server.handler;
 
 import com.weyong.onenet.dto.DataPackage;
 import com.weyong.onenet.server.Initializer.HttpChannelInitializer;
-import com.weyong.onenet.server.context.OneNetServerHttpContext;
-import com.weyong.onenet.server.session.OneNetHttpSession;
+import com.weyong.onenet.server.context.OneNetServerContext;
+import com.weyong.onenet.server.context.OneNetServerHttpContextHolder;
+import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,19 +15,18 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
+
 /**
  * Created by hao.li on 2017/4/12.
  */
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class HttpRawDataHandler extends HttpObjectDecoder {
-    private OneNetHttpSession httpSession;
+public class HttpChannelInboundHandler extends HttpObjectDecoder {
+    private OneNetSession httpSession;
     private String hostName;
-
-    public HttpRawDataHandler(OneNetHttpSession httpSession) {
-        this.httpSession = httpSession;
-    }
+    private OneNetServerContext oneNetServerContext;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -36,15 +36,15 @@ public class HttpRawDataHandler extends HttpObjectDecoder {
         in.readBytes(currentData, 0, length);
         in.resetReaderIndex();
         super.channelRead(ctx, msg);
-        if (httpSession.getOneNetChannel() != null) {
+        if (httpSession != null) {
             httpSession.getOneNetChannel().writeAndFlush(new DataPackage(
                     httpSession.getContextName(),
                     httpSession.getSessionId(),
                     currentData,
-                    httpSession.getContextConfig().isZip(),
-                    httpSession.getContextConfig().isAes()));
+                    oneNetServerContext.getOneNetServerContextConfig().isZip(),
+                    oneNetServerContext.getOneNetServerContextConfig().isAes()));
 
-            int kBps = httpSession.getContextConfig().getKBps()*1024;
+            int kBps = oneNetServerContext.getOneNetServerContextConfig().getKBps()*1024;
             ChannelTrafficShapingHandler trafficShapingHandler =  ((ChannelTrafficShapingHandler) ctx.pipeline().get(HttpChannelInitializer.trafficHandler));
             trafficShapingHandler.setWriteLimit(kBps);
             trafficShapingHandler.setReadLimit(kBps);
@@ -66,21 +66,26 @@ public class HttpRawDataHandler extends HttpObjectDecoder {
         HttpMessage msg =  new DefaultHttpRequest(
                 HttpVersion.valueOf(initialLine[2]),
                 HttpMethod.valueOf(initialLine[0]), initialLine[1], validateHeaders);
-        if (msg instanceof HttpRequest) {
-            HttpRequest request = (HttpRequest) msg;
-            HttpHeaders headers = request.headers();
-            hostName = headers.get("HOST");
-            if (StringUtils.isNotEmpty(hostName)) {
-                httpSession.setContextConfig(OneNetServerHttpContext.instance.getContextConfig(hostName));
-                if (httpSession.getContextConfig() != null && httpSession.getOneNetChannel() == null) {
-                    Channel clientChannel = OneNetServerHttpContext.instance.getOneNetConnectionManager().getAvailableChannel(hostName);
-                    if (clientChannel != null) {
-                        httpSession.setOneNetChannel(clientChannel);
+        return msg;
+    }
+
+    @Override
+    protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out) throws Exception {
+        super.decode(ctx,buffer,out);
+        out.stream().filter((object)-> object instanceof HttpRequest).findFirst().ifPresent((msg)->{
+            if (msg instanceof HttpRequest) {
+                HttpRequest request = (HttpRequest) msg;
+                HttpHeaders headers = request.headers();
+                hostName = headers.get("HOST");
+                if (StringUtils.isNotEmpty(hostName)) {
+                    oneNetServerContext = OneNetServerHttpContextHolder.instance.getContext(hostName);
+                    Channel channel = oneNetServerContext.getAvailableChannel();
+                    if(channel!=null) {
+                        httpSession = oneNetServerContext.createSession(ctx.channel(), channel);
                     }
                 }
             }
-        }
-        return msg;
+        });
     }
 
     @Override
@@ -90,7 +95,7 @@ public class HttpRawDataHandler extends HttpObjectDecoder {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        OneNetServerHttpContext.instance.close(httpSession);
+        oneNetServerContext.close(httpSession);
         super.channelInactive(ctx);
     }
 }

@@ -2,7 +2,6 @@ package com.weyong.onenet.server.handler;
 
 import com.weyong.onenet.dto.DataPackage;
 import com.weyong.onenet.server.context.OneNetServerContext;
-import com.weyong.onenet.server.context.OneNetServerHttpContext;
 import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

@@ -5,8 +5,7 @@ import com.weyong.onenet.server.config.OneNetServerConfig;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
 import com.weyong.onenet.server.config.OneNetServerHttpContextConfig;
 import com.weyong.onenet.server.context.OneNetServerContext;
-import com.weyong.onenet.server.context.OneNetServerHttpContext;
-import com.weyong.onenet.server.manager.OneNetHttpConnectionManager;
+import com.weyong.onenet.server.context.OneNetServerHttpContextHolder;
 import com.weyong.onenet.server.manager.OneNetTcpConnectionManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -22,7 +21,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,12 +34,13 @@ public class OneNetServer {
     public static EventLoopGroup bossGroup = new NioEventLoopGroup();
     public static EventLoopGroup workerGroup = new NioEventLoopGroup();
     private OneNetTcpConnectionManager oneNetTcpConnectionManager = new OneNetTcpConnectionManager();
-    private OneNetHttpConnectionManager oneNetHttpConnectionManager = new OneNetHttpConnectionManager();
     private ConcurrentHashMap<String, OneNetServerContext> contexts = new ConcurrentHashMap<>();
     private ServerBootstrap insideBootstrap = new ServerBootstrap();
+    private OneNetServerConfig oneNetServerConfig;
 
     @Autowired
     public OneNetServer(OneNetServerConfig oneNetServerConfig) {
+        this.oneNetServerConfig = oneNetServerConfig;
         insideBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
                 .childHandler(new OneNetChannelInitializer(this))
                 .option(ChannelOption.SO_BACKLOG, 128)
@@ -63,31 +62,28 @@ public class OneNetServer {
             }
             if (!CollectionUtils.isEmpty(oneNetServerConfig.getHttpContexts())) {
                 log.info(String.format("Start Http Contexts, size is : %d", oneNetServerConfig.getHttpContexts().size()));
-                createHttpContext(oneNetServerConfig.getHttpContexts());
+                OneNetServerHttpContextHolder httpContext = OneNetServerHttpContextHolder.instance(oneNetServerConfig.getHttpContexts(), this);
+                oneNetServerConfig.getHttpContexts().stream().forEach((httpConfig)->{
+                    OneNetServerHttpContextHolder.instance.add(createHttpContext(httpConfig));
+                });
             }
         } catch (InterruptedException e) {
             log.error(String.format("Server OneNet port %d start failed. The reason is :%s", oneNetServerConfig.getOneNetPort(), e.getMessage()));
         }
     }
 
-    private void createHttpContext(List<OneNetServerHttpContextConfig> contextConfigs) {
-        OneNetServerHttpContext httpContext = OneNetServerHttpContext.instance(contextConfigs, this);
-        contextConfigs.stream().forEach((config) -> {
-            contexts.putIfAbsent(config.getContextName()
-                    , httpContext);
-        });
+    private OneNetServerContext createHttpContext(OneNetServerHttpContextConfig contextConfig) {
+           return contexts.computeIfAbsent(contextConfig.getContextName()
+                    , (contextName) -> new OneNetServerContext(contextConfig,oneNetTcpConnectionManager));
     }
 
     public void createContext(OneNetServerContextConfig oneNetContextConfig) {
         contexts.computeIfAbsent(oneNetContextConfig.getContextName()
-                , (contextName) -> new OneNetServerContext(oneNetContextConfig, this));
+                , (contextName) -> new OneNetServerContext(oneNetContextConfig, oneNetTcpConnectionManager));
     }
 
     public void closeSessions(Channel channel) {
         getContexts().values().stream().forEach((oneNetServerContext) -> {
-            if (oneNetServerContext instanceof OneNetServerHttpContext) {
-                return;
-            }
             oneNetServerContext.getOneNetSessions().values().stream()
                     .filter((oneNetSession) -> {
                             return oneNetSession.getOneNetChannel() == channel;}

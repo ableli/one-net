@@ -1,9 +1,7 @@
 package com.weyong.onenet.server.session;
 
 import com.weyong.onenet.dto.InvalidSessionPackage;
-import com.weyong.onenet.server.context.OneNetServerContext;
 import io.netty.channel.Channel;
-import io.netty.channel.socket.SocketChannel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +20,7 @@ public class OneNetSession {
     private Channel oneNetChannel;
 
 
-    public OneNetSession(String contextName, SocketChannel ch, Channel oneNetChannel) {
+    public OneNetSession(String contextName, Channel ch, Channel oneNetChannel) {
         this.sessionId = index.incrementAndGet();
         this.internetChannel = ch;
         this.oneNetChannel = oneNetChannel;

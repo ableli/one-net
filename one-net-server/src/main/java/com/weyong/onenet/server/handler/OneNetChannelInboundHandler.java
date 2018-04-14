@@ -65,15 +65,9 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                         } else {
                             OneNetServerContextConfig config = oneNetServer.getContexts().get(contextName).getOneNetServerContextConfig(contextName);
                             ctx.channel().writeAndFlush(new InitialResponsePackage(contextName, config.isZip(), config.isAes(), config.getKBps()));
-                            if (config instanceof OneNetServerHttpContextConfig) {
-                                ((OneNetServerHttpContextConfig) config).getDomainRegExs().stream().forEach((regex) -> {
-                                    oneNetServer.getOneNetHttpConnectionManager().registerClientSession(
-                                            regex, clientSession);
-                                });
-                            } else {
-                                oneNetServer.getOneNetTcpConnectionManager().registerClientSession(
+                            oneNetServer.getOneNetTcpConnectionManager().registerClientSession(
                                         contextName, clientSession);
-                            }
+
                         }
                     });
                     break;

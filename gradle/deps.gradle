@@ -23,6 +23,7 @@ allprojects {
             dependency("ch.qos.logback:logback-classic:1.1.11")
             dependency("org.slf4j:slf4j-api:1.7.22")
             dependency("io.netty:netty-all:4.1.9.Final")
+            dependency("com.alibaba:fastjson:1.2.9")
             dependency("org.springframework.boot:spring-boot-starter-web:1.5.6.RELEASE")
 
             dependency("junit:junit:4.11")
