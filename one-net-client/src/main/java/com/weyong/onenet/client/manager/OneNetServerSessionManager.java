@@ -1,8 +1,9 @@
-package com.weyong.onenet.client.session;
+package com.weyong.onenet.client.manager;
 
 import com.weyong.onenet.client.OneNetClient;
 import com.weyong.onenet.client.config.OnenetClientServerConfig;
-import com.weyong.onenet.client.handler.OneNetChannelInitializer;
+import com.weyong.onenet.client.initializer.OneNetChannelInitializer;
+import com.weyong.onenet.client.session.ServerSession;
 import com.weyong.onenet.dto.HeartbeatPackage;
 import com.weyong.onenet.dto.InitialRequestPackage;
 import io.netty.channel.Channel;

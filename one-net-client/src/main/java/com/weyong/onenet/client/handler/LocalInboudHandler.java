@@ -17,8 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class LocalInboudHandler extends ChannelInboundHandlerAdapter {
-    //Max frame size is 1048576 leave 1k byte to class info.
-    private static int frameSize = 1047576;
     private ClientSession clientSession;
     private OneNetClientContext oneNetClientContext;
 
@@ -31,7 +29,7 @@ public class LocalInboudHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ByteBuf in = (ByteBuf) msg;
         while (in.readableBytes() > 0) {
-            int length = frameSize < in.readableBytes() ? frameSize : in.readableBytes();
+            int length = DataPackage.FRAME_MAX_SIZE < in.readableBytes() ? DataPackage.FRAME_MAX_SIZE : in.readableBytes();
             byte[] currentData = new byte[length];
             in.readBytes(currentData, 0, length);
             DataPackage dt = new DataPackage(clientSession.getContextName(),

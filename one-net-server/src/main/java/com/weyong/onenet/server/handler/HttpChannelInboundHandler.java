@@ -58,7 +58,7 @@ public class HttpChannelInboundHandler extends HttpObjectDecoder {
 
     @Override
     protected boolean isDecodingRequest() {
-        return StringUtils.isEmpty(httpSession.getContextName());
+        return httpSession == null;
     }
 
     @Override

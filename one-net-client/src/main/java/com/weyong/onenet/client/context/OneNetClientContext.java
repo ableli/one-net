@@ -3,9 +3,11 @@ package com.weyong.onenet.client.context;
 import com.weyong.onenet.client.OneNetClient;
 import com.weyong.onenet.client.config.OneNetClientContextConfig;
 import com.weyong.onenet.client.handler.LocalChannelFactory;
-import com.weyong.onenet.client.handler.LocalChannelInitializer;
+import com.weyong.onenet.client.initializer.LocalChannelInitializer;
 import com.weyong.onenet.client.handler.LocalInboudHandler;
 import com.weyong.onenet.client.session.ClientSession;
+import com.weyong.onenet.client.session.ServerSession;
+import com.weyong.onenet.dto.InvalidSessionPackage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.traffic.ChannelTrafficShapingHandler;
@@ -120,5 +122,17 @@ public class OneNetClientContext {
             targetSession.close();
             returnChannel(targetSession.getLocalChannel());
         }
+    }
+
+    public ClientSession getCurrentSession(ServerSession serverSession, Long sessionId) {
+        ClientSession targetSession =  new ClientSession(sessionId, serverSession, this.getOneNetClientContextConfig().getContextName(), null);
+            try {
+                targetSession.setLocalChannel(this.getContextLocalChannel(targetSession));
+                this.getSessionMap().putIfAbsent(sessionId,targetSession);
+                return targetSession;
+            } catch (Exception ex) {
+                log.error(ex.getMessage());
+                return null;
+            }
     }
 }

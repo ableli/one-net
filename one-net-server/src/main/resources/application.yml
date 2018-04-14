@@ -6,7 +6,7 @@ logging:
   level:
     root: error
     org.springframework.boot: error
-    com.weyong: debug
+    com.weyong: info
     io.netty.handler.logging: debug
 oneNetServer:
   name: firstServer

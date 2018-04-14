@@ -30,7 +30,6 @@ public class OneNetMsgEncoder extends MessageToByteEncoder<BasePackage> {
         }
 
         int endIdx = out.writerIndex();
-
         out.setInt(startIdx, endIdx - startIdx - 4);
     }
 }

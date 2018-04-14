@@ -1,6 +1,7 @@
-package com.weyong.onenet.client.handler;
+package com.weyong.onenet.client.initializer;
 
 import com.weyong.onenet.client.context.OneNetClientContext;
+import com.weyong.onenet.client.handler.LocalInboudHandler;
 import com.weyong.onenet.client.session.ClientSession;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;

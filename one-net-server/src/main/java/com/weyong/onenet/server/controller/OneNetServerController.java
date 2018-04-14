@@ -7,6 +7,7 @@ import com.weyong.onenet.server.controller.dto.OneNetContextDto;
 import com.weyong.onenet.server.controller.dto.OneNetServerDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ public class OneNetServerController {
 
     @RequestMapping(value = "/server", method = RequestMethod.GET)
     @ResponseBody
+    @Scheduled(fixedRate = 60000*60)
     public String server(){
         OneNetServerDto serverDto = new OneNetServerDto();
         serverDto.setName(oneNetServer.getOneNetServerConfig().getName());
@@ -40,6 +42,8 @@ public class OneNetServerController {
 
             });
         }
-        return JSON.toJSONString(serverDto, SerializerFeature.PrettyFormat);
+        String result = JSON.toJSONString(serverDto, SerializerFeature.PrettyFormat);
+        log.info(result);
+        return result;
     }
 }

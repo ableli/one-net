@@ -20,7 +20,7 @@ public class OneNetMsgDecoder extends LengthFieldBasedFrameDecoder {
             return null;
         }
         BasePackage basePackage = BasePackage.fromBytes(frame);
-        in.release();
+        frame.release();
         return basePackage;
     }
 }

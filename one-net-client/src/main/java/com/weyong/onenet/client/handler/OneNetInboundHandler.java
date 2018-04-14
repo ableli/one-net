@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by hao.li on 2017/4/13.
@@ -51,25 +52,31 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
             case BasePackage.DATA:
                 if (StringUtils.isNotEmpty(msg.getContextName()) && msg.getSessionId() != null) {
                     OneNetClientContext context = serverSession.getOneNetClientContextMap().get(msg.getContextName());
-                    ClientSession clientSession = context.
-                            getSessionMap().computeIfAbsent(msg.getSessionId(), (id) -> {
-                        ClientSession newClientSession = new ClientSession(id, serverSession, context.getOneNetClientContextConfig().getContextName(), null);
-                        try {
-                            newClientSession.setLocalChannel(context.getContextLocalChannel(newClientSession));
-                            return newClientSession;
-                        } catch (Exception ex) {
-                            log.error(ex.getMessage());
-                            ctx.channel().writeAndFlush(
-                                    new InvalidSessionPackage(
-                                            newClientSession.getContextName(),
-                                            id));
-                        }
-                        return null;
-                    });
-                    clientSession.getLocalChannel().writeAndFlush(((DataPackage) msg).getRawData());
+                    if(context ==null) {
+                        ctx.channel().writeAndFlush(
+                                new InvalidSessionPackage(
+                                        msg.getContextName(),
+                                        msg.getSessionId()));
+                        return;
+                    }
+                    ClientSession clientSession = context.getSessionMap().get(msg.getSessionId());
+                    if(clientSession != null){
+                        clientSession.getLocalChannel().writeAndFlush(((DataPackage) msg).getRawData());
+                    }else{
+                        CompletableFuture.runAsync(()->{
+                            ClientSession newSession =  context.getCurrentSession(serverSession,msg.getSessionId());
+                            if(newSession == null){
+                                ctx.channel().writeAndFlush(
+                                        new InvalidSessionPackage(
+                                                msg.getContextName(),
+                                                msg.getSessionId()));
+                            }else {
+                                newSession.getLocalChannel().writeAndFlush(((DataPackage) msg).getRawData());
+                            }
+                        });
+                    }
                 }
                 break;
-
         }
     }
 }

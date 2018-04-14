@@ -1,7 +1,7 @@
 package com.weyong.onenet.client;
 
 import com.weyong.onenet.client.config.OneNetClientConfig;
-import com.weyong.onenet.client.session.OneNetServerSessionManager;
+import com.weyong.onenet.client.manager.OneNetServerSessionManager;
 import com.weyong.onenet.client.session.ServerSession;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;

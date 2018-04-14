@@ -1,5 +1,6 @@
 package com.weyong.onenet.client.handler;
 
+import com.weyong.onenet.client.initializer.LocalChannelInitializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import lombok.extern.slf4j.Slf4j;

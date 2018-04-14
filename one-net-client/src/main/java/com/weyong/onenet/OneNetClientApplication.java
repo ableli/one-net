@@ -1,5 +1,6 @@
 package com.weyong.onenet;
 
+import io.netty.util.ResourceLeakDetector;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan
 public class OneNetClientApplication {
     public static void main(String... args) throws Exception {
+        //ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
         SpringApplication application = new SpringApplication(OneNetClientApplication.class);
         application.run();
     }

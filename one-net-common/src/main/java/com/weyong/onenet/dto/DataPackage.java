@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class DataPackage extends BasePackage {
+    public static int FRAME_MAX_SIZE = 1047576;
     private byte[] data;
     private Boolean zip = false;
     private Boolean aes = false;
