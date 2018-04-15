@@ -4,7 +4,7 @@ Release your Pc's cloud capability.
 Client/Server mode.
 High performance on High concurrent.
 Industry level software.
-##
+##Release
 * Latest version: 1.2-RELEASE
 * Sources branch: 1.2-RELEASE
 
@@ -31,9 +31,9 @@ Industry level software.
     ```
     the jar output are in [project root dir][sub project dir]/build/libs
     - Direct download
-     [one-net-server-clear-1.2-RELEASE](http://www.weyong.net/server/one-net-server-clear-1.2-RELEASE.jar)
-     [one-net-client-clear-1.2-RELEASE](http://www.weyong.net/client/one-net-client-clear-1.2-RELEASE.jar)
-     -- The files hosted in my home and tunnel by OneNet via Cloud VPS :)
+        - [one-net-server-clear-1.2-RELEASE](http://www.weyong.net/server/one-net-server-clear-1.2-RELEASE.jar)
+        - [one-net-client-clear-1.2-RELEASE](http://www.weyong.net/client/one-net-client-clear-1.2-RELEASE.jar)
+     > The files hosted in my home and tunnel by OneNet via Cloud VPS :)
 3. Config your tunnels
     - create application.yml files for both server and client, the following template is for Server.
     - The following template demonstrate blow four contexts:
