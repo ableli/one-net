@@ -160,7 +160,7 @@ Industry level software.
 2. Byte level transfer protocol result in low cost.
 3. Localhost connection pool supported.
 3. 100 threads, 100 request each thread,  test result.
-    ![alt text](https://github.com/ableli/one-net/blob/master/doc/image/100X100-Request-Test.png "Logo Title Text 1")
+    ![alt text](https://raw.githubusercontent.com/ableli/one-net/master/doc/img/100X100-Request-Test.png "Logo Title Text 1")
 
 
 ## Road Map
