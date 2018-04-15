@@ -46,7 +46,7 @@ mstsc | [server]:56789 | [127.0.0.1]:3389
 test1 | [server]:80 | [127.0.0.1]:88
 test2 | [server]:80 | [127.0.0.1]:82||
 
-[application.yml for server](http://www.weyong.net/one-net-server-clear-1.2-RELEASE)
+[application.yml for server](http://www.weyong.net/server/application.yml)
 
     ```yml
     #The OneNetServer config template
@@ -96,7 +96,7 @@ test2 | [server]:80 | [127.0.0.1]:82||
               \w+.test2.com
     ```
     
-[application.yml for client](http://www.weyong.net/one-net-client-clear-1.2-RELEASE)
+[application.yml for client](http://www.weyong.net/client/application.yml)
 
     ```yml
     #The OneNetClient config template
