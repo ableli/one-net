@@ -1,6 +1,6 @@
 package com.weyong.onenet.server.context;
 
-import com.weyong.onenet.server.Initializer.HttpChannelInitializer;
+import com.weyong.onenet.server.initializer.HttpChannelInitializer;
 import com.weyong.onenet.server.OneNetServer;
 import com.weyong.onenet.server.config.OneNetServerHttpContextConfig;
 import io.netty.bootstrap.ServerBootstrap;
@@ -22,13 +22,12 @@ import java.util.regex.Pattern;
 @Data
 public class OneNetServerHttpContextHolder {
     public static boolean tcp80Initialed = false;
-    protected ServerBootstrap outsideBootstrap = new ServerBootstrap();
     public static OneNetServerHttpContextHolder instance;
+    protected ServerBootstrap outsideBootstrap = new ServerBootstrap();
     private Map<String, OneNetServerContext> hostnameLookupMap = new ConcurrentHashMap<>();
     private Map<OneNetServerHttpContextConfig, OneNetServerContext> contextsMap = new ConcurrentHashMap<>();
 
     private OneNetServerHttpContextHolder() {
-        super();
         if (!tcp80Initialed) {
             outsideBootstrap.group(OneNetServer.bossGroup, OneNetServer.workerGroup);
             outsideBootstrap.channel(NioServerSocketChannel.class)
@@ -53,19 +52,12 @@ public class OneNetServerHttpContextHolder {
         return instance;
     }
 
-//    @Override
-//    public OneNetSession createSession(SocketChannel ch, Channel oneNetChannel) {
-//        OneNetHttpSession oneNetSession = new OneNetHttpSession(ch, oneNetChannel);
-//        this.getOneNetSessions().put(oneNetSession.getSessionId(), oneNetSession);
-//        return oneNetSession;
-//    }
-
     public OneNetServerContext getContext(String hostName) {
         return hostnameLookupMap.computeIfAbsent(hostName, (name) -> getContextByHostname(name));
     }
 
     public void add(OneNetServerContext httpContext) {
-        contextsMap.putIfAbsent((OneNetServerHttpContextConfig)httpContext.getOneNetServerContextConfig(),httpContext);
+        contextsMap.putIfAbsent((OneNetServerHttpContextConfig) httpContext.getOneNetServerContextConfig(), httpContext);
     }
 
     public OneNetServerContext getContextByHostname(String hostName) {

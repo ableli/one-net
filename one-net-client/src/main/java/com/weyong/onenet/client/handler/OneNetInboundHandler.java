@@ -52,7 +52,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
             case BasePackage.DATA:
                 if (StringUtils.isNotEmpty(msg.getContextName()) && msg.getSessionId() != null) {
                     OneNetClientContext context = serverSession.getOneNetClientContextMap().get(msg.getContextName());
-                    if(context ==null) {
+                    if (context == null) {
                         ctx.channel().writeAndFlush(
                                 new InvalidSessionPackage(
                                         msg.getContextName(),
@@ -60,23 +60,24 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
                         return;
                     }
                     ClientSession clientSession = context.getSessionMap().get(msg.getSessionId());
-                    if(clientSession != null){
+                    if (clientSession != null) {
                         clientSession.getLocalChannel().writeAndFlush(((DataPackage) msg).getRawData());
-                    }else{
-                        CompletableFuture.runAsync(()->{
-                            ClientSession newSession =  context.getCurrentSession(serverSession,msg.getSessionId());
-                            if(newSession == null){
+                    } else {
+                        CompletableFuture.runAsync(() -> {
+                            ClientSession newSession = context.getCurrentSession(serverSession, msg.getSessionId());
+                            if (newSession == null) {
                                 ctx.channel().writeAndFlush(
                                         new InvalidSessionPackage(
                                                 msg.getContextName(),
                                                 msg.getSessionId()));
-                            }else {
+                            } else {
                                 newSession.getLocalChannel().writeAndFlush(((DataPackage) msg).getRawData());
                             }
                         });
                     }
                 }
                 break;
+                default: throw new RuntimeException("Not Supported Package Type");
         }
     }
 }

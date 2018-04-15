@@ -20,7 +20,7 @@ public class InternetChannelInboundHandler extends ChannelInboundHandlerAdapter 
     private OneNetSession oneNetSession;
     private OneNetServerContext oneNetServerContext;
 
-    public InternetChannelInboundHandler(OneNetServerContext oneNetServerContext,OneNetSession oneNetSession) {
+    public InternetChannelInboundHandler(OneNetServerContext oneNetServerContext, OneNetSession oneNetSession) {
         this.oneNetServerContext = oneNetServerContext;
         this.oneNetSession = oneNetSession;
     }

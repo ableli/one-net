@@ -1,7 +1,8 @@
 package com.weyong.onenet.server.handler;
 
+import com.weyong.constants.OneNetCommonConstants;
 import com.weyong.onenet.dto.DataPackage;
-import com.weyong.onenet.server.Initializer.HttpChannelInitializer;
+import com.weyong.onenet.server.initializer.HttpChannelInitializer;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import com.weyong.onenet.server.context.OneNetServerHttpContextHolder;
 import com.weyong.onenet.server.session.OneNetSession;
@@ -31,7 +32,7 @@ public class HttpChannelInboundHandler extends HttpObjectDecoder {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf in = (ByteBuf) msg;
-        int length =  in.readableBytes();
+        int length = in.readableBytes();
         byte[] currentData = new byte[length];
         in.readBytes(currentData, 0, length);
         in.resetReaderIndex();
@@ -44,8 +45,8 @@ public class HttpChannelInboundHandler extends HttpObjectDecoder {
                     oneNetServerContext.getOneNetServerContextConfig().isZip(),
                     oneNetServerContext.getOneNetServerContextConfig().isAes()));
 
-            int kBps = oneNetServerContext.getOneNetServerContextConfig().getKBps()*1024;
-            ChannelTrafficShapingHandler trafficShapingHandler =  ((ChannelTrafficShapingHandler) ctx.pipeline().get(HttpChannelInitializer.trafficHandler));
+            int kBps = oneNetServerContext.getOneNetServerContextConfig().getKBps() * OneNetCommonConstants.KByte;
+            ChannelTrafficShapingHandler trafficShapingHandler = ((ChannelTrafficShapingHandler) ctx.pipeline().get(HttpChannelInitializer.trafficHandler));
             trafficShapingHandler.setWriteLimit(kBps);
             trafficShapingHandler.setReadLimit(kBps);
         } else {
@@ -63,7 +64,7 @@ public class HttpChannelInboundHandler extends HttpObjectDecoder {
 
     @Override
     protected HttpMessage createMessage(String[] initialLine) throws Exception {
-        HttpMessage msg =  new DefaultHttpRequest(
+        HttpMessage msg = new DefaultHttpRequest(
                 HttpVersion.valueOf(initialLine[2]),
                 HttpMethod.valueOf(initialLine[0]), initialLine[1], validateHeaders);
         return msg;
@@ -71,8 +72,8 @@ public class HttpChannelInboundHandler extends HttpObjectDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out) throws Exception {
-        super.decode(ctx,buffer,out);
-        out.stream().filter((object)-> object instanceof HttpRequest).findFirst().ifPresent((msg)->{
+        super.decode(ctx, buffer, out);
+        out.stream().filter((object) -> object instanceof HttpRequest).findFirst().ifPresent((msg) -> {
             if (msg instanceof HttpRequest) {
                 HttpRequest request = (HttpRequest) msg;
                 HttpHeaders headers = request.headers();
@@ -80,7 +81,7 @@ public class HttpChannelInboundHandler extends HttpObjectDecoder {
                 if (StringUtils.isNotEmpty(hostName)) {
                     oneNetServerContext = OneNetServerHttpContextHolder.instance.getContext(hostName);
                     Channel channel = oneNetServerContext.getAvailableChannel();
-                    if(channel!=null) {
+                    if (channel != null) {
                         httpSession = oneNetServerContext.createSession(ctx.channel(), channel);
                     }
                 }

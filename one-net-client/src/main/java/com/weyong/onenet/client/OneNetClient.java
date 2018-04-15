@@ -24,15 +24,14 @@ import org.springframework.util.CollectionUtils;
 @EnableConfigurationProperties({OneNetClientConfig.class})
 @EnableScheduling
 public class OneNetClient {
-    private static Bootstrap b;
-
+    private static Bootstrap bootstrap;
     private String clientName;
 
     @Autowired
     public OneNetClient(OneNetServerSessionManager oneNetServerSessionManager, OneNetClientConfig oneNetClientConfig) throws Exception {
-        b = new Bootstrap();
+        bootstrap = new Bootstrap();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
-        b.group(workerGroup).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true);
+        bootstrap.group(workerGroup).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true);
         oneNetServerSessionManager.setClientName(oneNetClientConfig.getServerName());
         oneNetServerSessionManager.setReconnectAfterNSeconds(oneNetClientConfig.getReconnectSeconds());
         if (!CollectionUtils.isEmpty(oneNetClientConfig.getServerConfigs())) {
@@ -49,7 +48,7 @@ public class OneNetClient {
     public static Channel createChannel(final String ip, final int port, ChannelInitializer channelInitializer) {
         ChannelFuture channelFuture = null;
         try {
-            channelFuture = b.handler(channelInitializer).connect(ip, port).sync();
+            channelFuture = bootstrap.handler(channelInitializer).connect(ip, port).sync();
             return channelFuture.channel();
         } catch (InterruptedException e) {
             e.printStackTrace();

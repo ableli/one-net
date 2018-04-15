@@ -1,6 +1,6 @@
 package com.weyong.onenet.server.context;
 
-import com.weyong.onenet.server.Initializer.InternetChannelInitializer;
+import com.weyong.onenet.server.initializer.InternetChannelInitializer;
 import com.weyong.onenet.server.OneNetServer;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
 import com.weyong.onenet.server.manager.OneNetConnectionManager;
@@ -32,7 +32,11 @@ public class OneNetServerContext {
         this.oneNetServerContextConfig = oneNetServerContextConfig;
         this.oneNetConnectionManager = oneNetConnectionManager;
         if (oneNetServerContextConfig.getInternetPort().intValue() == 80) {
-            OneNetServerHttpContextHolder.tcp80Initialed = true;
+            if (OneNetServerHttpContextHolder.tcp80Initialed) {
+                return;
+            } else {
+                OneNetServerHttpContextHolder.tcp80Initialed = true;
+            }
         }
         ServerBootstrap outsideBootstrap = new ServerBootstrap();
         outsideBootstrap.group(OneNetServer.bossGroup, OneNetServer.workerGroup);
@@ -67,20 +71,20 @@ public class OneNetServerContext {
     }
 
     @Autowired
-    public String toString(){
+    public String toString() {
         return oneNetServerContextConfig.getContextName();
     }
 
     public void close(OneNetSession oneNetSession) {
-        log.debug(String.format("Session %d closed. Context alive session count is : %d",oneNetSession.getSessionId(), this.getOneNetSessions().size()));
+        log.debug(String.format("Session %d closed. Context alive session count is : %d", oneNetSession.getSessionId(), this.getOneNetSessions().size()));
         oneNetSession.close();
         this.getOneNetSessions().remove(oneNetSession.getSessionId());
     }
 
     public void close(Long sessionId) {
-        log.debug(String.format("Session %d closed. Context alive session count is : %d",sessionId, this.getOneNetSessions().size()));
+        log.debug(String.format("Session %d closed. Context alive session count is : %d", sessionId, this.getOneNetSessions().size()));
         OneNetSession oneNetSession = this.getOneNetSessions().remove(sessionId);
-        if(oneNetSession!=null) {
+        if (oneNetSession != null) {
             oneNetSession.close();
         }
     }

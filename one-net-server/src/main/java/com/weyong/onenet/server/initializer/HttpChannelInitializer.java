@@ -1,5 +1,6 @@
-package com.weyong.onenet.server.Initializer;
+package com.weyong.onenet.server.initializer;
 
+import com.weyong.constants.OneNetCommonConstants;
 import com.weyong.onenet.server.handler.HttpChannelInboundHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
@@ -14,7 +15,7 @@ public class HttpChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        int bytePreSecond = 5 * 1024;
+        int bytePreSecond = 5 * OneNetCommonConstants.KByte;
         ch.pipeline()
                 .addLast(trafficHandler, new ChannelTrafficShapingHandler(bytePreSecond,
                         bytePreSecond))

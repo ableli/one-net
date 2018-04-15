@@ -1,5 +1,6 @@
-package com.weyong.onenet.server.Initializer;
+package com.weyong.onenet.server.initializer;
 
+import com.weyong.constants.OneNetCommonConstants;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import com.weyong.onenet.server.handler.InternetChannelInboundHandler;
 import com.weyong.onenet.server.session.OneNetSession;
@@ -30,11 +31,11 @@ public class InternetChannelInitializer extends ChannelInitializer<SocketChannel
             ch.close();
         } else {
             OneNetSession oneNetSession = oneNetServerContext.createSession(ch, oneNetChannel);
-            int bytePreSecond = oneNetServerContext.getOneNetServerContextConfig().getKBps() * 1024;
+            int bytePreSecond = oneNetServerContext.getOneNetServerContextConfig().getKBps() * OneNetCommonConstants.KByte;
             ch.pipeline()
                     .addLast(new ChannelTrafficShapingHandler(bytePreSecond,
                             bytePreSecond))
-                    .addLast(new InternetChannelInboundHandler(oneNetServerContext,oneNetSession))
+                    .addLast(new InternetChannelInboundHandler(oneNetServerContext, oneNetSession))
                     .addLast(new ByteArrayEncoder());
         }
     }

@@ -1,5 +1,6 @@
 package com.weyong.onenet.client.initializer;
 
+import com.weyong.constants.OneNetCommonConstants;
 import com.weyong.onenet.client.context.OneNetClientContext;
 import com.weyong.onenet.client.handler.LocalInboudHandler;
 import com.weyong.onenet.client.session.ClientSession;
@@ -28,11 +29,11 @@ public class LocalChannelInitializer extends ChannelInitializer<SocketChannel> {
         ChannelPipeline p = ch.pipeline();
         int bytesPreSecond = 0;
         if (clientSession != null) {
-            bytesPreSecond = oneNetClientContext.getKBps() * 1024;
+            bytesPreSecond = oneNetClientContext.getKBps() * OneNetCommonConstants.KByte;
         }
         p.addLast(CHANNEL_TRAFFIC_HANDLER, new ChannelTrafficShapingHandler(bytesPreSecond,
                 bytesPreSecond))
-                .addLast(LOCAL_RESPONSE_HANDLER, new LocalInboudHandler(oneNetClientContext,clientSession))
+                .addLast(LOCAL_RESPONSE_HANDLER, new LocalInboudHandler(oneNetClientContext, clientSession))
                 .addLast(new ByteArrayEncoder());
     }
 }

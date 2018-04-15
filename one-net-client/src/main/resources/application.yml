@@ -24,7 +24,7 @@ oneNetClient:
         -
           contextName: mstsc
           localhost: localhost
-          port: 3386
+          port: 3389
           localPool: false
         -
           contextName: test1

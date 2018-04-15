@@ -45,7 +45,7 @@ public class ServerSession {
 
     public void invalidAllClientSessions() {
         oneNetClientContextMap.values().stream().forEach((oneNetClientContext ->
-            oneNetClientContext.closeAll()
-       ));
+                oneNetClientContext.closeAll()
+        ));
     }
 }

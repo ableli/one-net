@@ -20,7 +20,7 @@ public class LocalInboudHandler extends ChannelInboundHandlerAdapter {
     private ClientSession clientSession;
     private OneNetClientContext oneNetClientContext;
 
-    public LocalInboudHandler(OneNetClientContext oneNetClientContext,ClientSession clientSession) {
+    public LocalInboudHandler(OneNetClientContext oneNetClientContext, ClientSession clientSession) {
         this.clientSession = clientSession;
         this.oneNetClientContext = oneNetClientContext;
     }

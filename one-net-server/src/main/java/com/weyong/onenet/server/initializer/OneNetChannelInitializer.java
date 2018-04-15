@@ -1,4 +1,4 @@
-package com.weyong.onenet.server.Initializer;
+package com.weyong.onenet.server.initializer;
 
 import com.weyong.codec.OneNetMsgDecoder;
 import com.weyong.codec.OneNetMsgEncoder;

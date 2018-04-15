@@ -19,7 +19,6 @@ import java.io.StringReader;
 
 /**
  * XMLParse class
- *
  */
 class XMLParse {
 

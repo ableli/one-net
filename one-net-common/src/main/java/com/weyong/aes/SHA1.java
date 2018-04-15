@@ -13,7 +13,6 @@ import java.util.Arrays;
 
 /**
  * SHA1 class
- *
  */
 public class SHA1 {
 

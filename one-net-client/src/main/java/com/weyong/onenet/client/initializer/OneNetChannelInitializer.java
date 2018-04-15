@@ -20,10 +20,7 @@ public class OneNetChannelInitializer extends ChannelInitializer<SocketChannel> 
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        ChannelPipeline p = ch.pipeline()
-//                .addLast(new ObjectEncoder())
-//                .addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(this.getClass().getClassLoader())))
-//                    addLast(new LoggingHandler(LogLevel.DEBUG))
+        ch.pipeline()
                 .addLast(new OneNetMsgEncoder())
                 .addLast(new OneNetMsgDecoder())
                 .addLast(new OneNetInboundHandler(serverSession));

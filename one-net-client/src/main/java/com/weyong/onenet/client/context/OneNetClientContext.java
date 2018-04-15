@@ -1,13 +1,13 @@
 package com.weyong.onenet.client.context;
 
+import com.weyong.constants.OneNetCommonConstants;
 import com.weyong.onenet.client.OneNetClient;
 import com.weyong.onenet.client.config.OneNetClientContextConfig;
 import com.weyong.onenet.client.handler.LocalChannelFactory;
-import com.weyong.onenet.client.initializer.LocalChannelInitializer;
 import com.weyong.onenet.client.handler.LocalInboudHandler;
+import com.weyong.onenet.client.initializer.LocalChannelInitializer;
 import com.weyong.onenet.client.session.ClientSession;
 import com.weyong.onenet.client.session.ServerSession;
-import com.weyong.onenet.dto.InvalidSessionPackage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.traffic.ChannelTrafficShapingHandler;
@@ -39,7 +39,7 @@ public class OneNetClientContext {
         this.oneNetClientContextConfig = oneNetClientContextConfig;
         if (oneNetClientContextConfig.isLocalPool()) {
             localPool = new GenericObjectPool<Channel>(new LocalChannelFactory(
-                    () -> OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(), oneNetClientContextConfig.getPort(), new LocalChannelInitializer(this,null))
+                    () -> OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(), oneNetClientContextConfig.getPort(), new LocalChannelInitializer(this, null))
             ),
                     getGenericObjectPoolConfig());
         }
@@ -65,7 +65,7 @@ public class OneNetClientContext {
         if (!oneNetClientContextConfig.isLocalPool()) {
             channel = OneNetClient.createChannel(oneNetClientContextConfig.getLocalhost(),
                     oneNetClientContextConfig.getPort(),
-                    new LocalChannelInitializer(this,clientSession));
+                    new LocalChannelInitializer(this, clientSession));
         } else {
             try {
                 channel = localPool.borrowObject();
@@ -76,8 +76,8 @@ public class OneNetClientContext {
             ((LocalInboudHandler) handler).setClientSession(clientSession);
             ChannelTrafficShapingHandler channelTrafficShapingHandler =
                     (ChannelTrafficShapingHandler) channel.pipeline().get(LocalChannelInitializer.CHANNEL_TRAFFIC_HANDLER);
-            channelTrafficShapingHandler.setReadLimit(kBps * 1024);
-            channelTrafficShapingHandler.setWriteLimit(kBps * 1024);
+            channelTrafficShapingHandler.setReadLimit(kBps * OneNetCommonConstants.KByte);
+            channelTrafficShapingHandler.setWriteLimit(kBps * OneNetCommonConstants.KByte);
             log.debug(localPool.getNumActive() + "-" + localPool.getNumIdle());
         }
         return channel;
@@ -113,26 +113,26 @@ public class OneNetClientContext {
 
     public void closeAll() {
         List<ClientSession> clientSessionList = this.getSessionMap().values().stream().collect(Collectors.toList());
-        clientSessionList.forEach((targetSession)-> close(targetSession));
+        clientSessionList.forEach((targetSession) -> close(targetSession));
     }
 
     public void close(Long sessionId) {
         ClientSession targetSession = this.getSessionMap().remove(sessionId);
-        if(targetSession!=null) {
+        if (targetSession != null) {
             targetSession.close();
             returnChannel(targetSession.getLocalChannel());
         }
     }
 
     public ClientSession getCurrentSession(ServerSession serverSession, Long sessionId) {
-        ClientSession targetSession =  new ClientSession(sessionId, serverSession, this.getOneNetClientContextConfig().getContextName(), null);
-            try {
-                targetSession.setLocalChannel(this.getContextLocalChannel(targetSession));
-                this.getSessionMap().putIfAbsent(sessionId,targetSession);
-                return targetSession;
-            } catch (Exception ex) {
-                log.error(ex.getMessage());
-                return null;
-            }
+        ClientSession targetSession = new ClientSession(sessionId, serverSession, this.getOneNetClientContextConfig().getContextName(), null);
+        try {
+            targetSession.setLocalChannel(this.getContextLocalChannel(targetSession));
+            this.getSessionMap().putIfAbsent(sessionId, targetSession);
+            return targetSession;
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            return null;
+        }
     }
 }

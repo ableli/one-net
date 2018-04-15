@@ -3,7 +3,6 @@ package com.weyong.onenet.server.handler;
 import com.weyong.onenet.dto.*;
 import com.weyong.onenet.server.OneNetServer;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
-import com.weyong.onenet.server.config.OneNetServerHttpContextConfig;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import com.weyong.onenet.server.session.ClientSession;
 import com.weyong.onenet.server.session.OneNetSession;
@@ -66,7 +65,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                             OneNetServerContextConfig config = oneNetServer.getContexts().get(contextName).getOneNetServerContextConfig(contextName);
                             ctx.channel().writeAndFlush(new InitialResponsePackage(contextName, config.isZip(), config.isAes(), config.getKBps()));
                             oneNetServer.getOneNetTcpConnectionManager().registerClientSession(
-                                        contextName, clientSession);
+                                    contextName, clientSession);
 
                         }
                     });

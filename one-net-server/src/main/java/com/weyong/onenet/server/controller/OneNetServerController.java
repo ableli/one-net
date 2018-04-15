@@ -29,13 +29,13 @@ public class OneNetServerController {
 
     @RequestMapping(value = "/server", method = RequestMethod.GET)
     @ResponseBody
-    @Scheduled(fixedRate = 60000*60)
-    public String server(){
+    @Scheduled(fixedRate = 60000 * 60)
+    public String server() {
         OneNetServerDto serverDto = new OneNetServerDto();
         serverDto.setName(oneNetServer.getOneNetServerConfig().getName());
         serverDto.setPort(oneNetServer.getOneNetServerConfig().getOneNetPort());
         serverDto.setContexts(new ArrayList<>());
-        if(!CollectionUtils.isEmpty(this.oneNetServer.getContexts())) {
+        if (!CollectionUtils.isEmpty(this.oneNetServer.getContexts())) {
             this.oneNetServer.getContexts().values().stream().forEach(oneNetServerContext -> {
                 serverDto.getContexts().add(new OneNetContextDto(oneNetServerContext.getOneNetServerContextConfig().getContextName(),
                         oneNetServerContext.getOneNetSessions().size()));

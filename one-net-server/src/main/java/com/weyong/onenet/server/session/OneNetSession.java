@@ -28,7 +28,7 @@ public class OneNetSession {
     }
 
     public void close() {
-        if(this.oneNetChannel.isActive()) {
+        if (this.oneNetChannel.isActive()) {
             oneNetChannel.writeAndFlush(new InvalidSessionPackage(getContextName(), sessionId));
         }
         if (internetChannel != null && internetChannel.isActive()) {

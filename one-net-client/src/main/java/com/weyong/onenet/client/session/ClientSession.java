@@ -21,7 +21,7 @@ public class ClientSession {
     private Channel localChannel;
 
     public void close() {
-        if(this.getServerSession().getServerChannel().isActive()) {
+        if (this.getServerSession().getServerChannel().isActive()) {
             serverSession.getServerChannel().writeAndFlush(
                     new InvalidSessionPackage(this.getContextName(), sessionId));
         }

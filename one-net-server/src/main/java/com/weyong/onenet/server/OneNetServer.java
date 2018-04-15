@@ -1,6 +1,6 @@
 package com.weyong.onenet.server;
 
-import com.weyong.onenet.server.Initializer.OneNetChannelInitializer;
+import com.weyong.onenet.server.initializer.OneNetChannelInitializer;
 import com.weyong.onenet.server.config.OneNetServerConfig;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
 import com.weyong.onenet.server.config.OneNetServerHttpContextConfig;
@@ -63,7 +63,7 @@ public class OneNetServer {
             if (!CollectionUtils.isEmpty(oneNetServerConfig.getHttpContexts())) {
                 log.info(String.format("Start Http Contexts, size is : %d", oneNetServerConfig.getHttpContexts().size()));
                 OneNetServerHttpContextHolder httpContext = OneNetServerHttpContextHolder.instance(oneNetServerConfig.getHttpContexts(), this);
-                oneNetServerConfig.getHttpContexts().stream().forEach((httpConfig)->{
+                oneNetServerConfig.getHttpContexts().stream().forEach((httpConfig) -> {
                     OneNetServerHttpContextHolder.instance.add(createHttpContext(httpConfig));
                 });
             }
@@ -73,8 +73,8 @@ public class OneNetServer {
     }
 
     private OneNetServerContext createHttpContext(OneNetServerHttpContextConfig contextConfig) {
-           return contexts.computeIfAbsent(contextConfig.getContextName()
-                    , (contextName) -> new OneNetServerContext(contextConfig,oneNetTcpConnectionManager));
+        return contexts.computeIfAbsent(contextConfig.getContextName()
+                , (contextName) -> new OneNetServerContext(contextConfig, oneNetTcpConnectionManager));
     }
 
     public void createContext(OneNetServerContextConfig oneNetContextConfig) {
@@ -86,9 +86,10 @@ public class OneNetServer {
         getContexts().values().stream().forEach((oneNetServerContext) -> {
             oneNetServerContext.getOneNetSessions().values().stream()
                     .filter((oneNetSession) -> {
-                            return oneNetSession.getOneNetChannel() == channel;}
-                            ).forEach((toCloseSession) -> {
-                            oneNetServerContext.close(toCloseSession);
+                                return oneNetSession.getOneNetChannel() == channel;
+                            }
+                    ).forEach((toCloseSession) -> {
+                        oneNetServerContext.close(toCloseSession);
                     }
             );
         });
