@@ -1,23 +1,27 @@
-#Onenet ： A pure java,excelling and beyond  implementation of Ngrok or FRP 
-Make your PCs access by Internet.
+# Onenet ： A pure java,excelling and beyond  implementation of Ngrok or FRP 
+
+Make your PCs'services access by Internet.
 Release your Pc's cloud capability.
 Client/Server mode.
 High performance on High concurrent.
 Industry level software.
-##Release
+## Release
 * Latest version: 1.2-RELEASE
 * Sources branch: 1.2-RELEASE
 
-##Features
+## Features
 1. TCP and HTTP one direction tunnel
+   > Http context need 80 port and it parse request host name to match config context) 
+   >, and the tcp context doing no parse on data trans in.
 2. Traffic control for each context/tunnel.
 2. Gzip Support
 3. AES Support
+	>Need JCE to support
 4. One Server Support Mutipl Domains
 5. Mutil Channl Server/Client Support
 6. Cross Platform(Linux, Windows and the other can run JRE8)
 
-##User Guide
+## User Guide
 1. Install Java 8 on your Server(Cloud VPS or any PC can access by Internet ) and Pc.
    >  The AES feature need JCE lib for JRE.
 2. Download(or self build) both server and client of OneNet.
@@ -139,17 +143,25 @@ Industry level software.
                       port: 82
                       localPool: false
         ```
+        > The application.yml need edit in professional editor VS Code and IDEA .etc, Any informat or speicial char will cause error.
 4. Start Server and Client.
     - put application.yml in the same folder with jar file
-    ```shell
+        ```shell
         #for server
         /usr/bin/java -Xmx256m -jar one-net-server-clear-1.2-RELEASE.jar > one-net-server.log
         #for client
         /usr/bin/java -Xmx256m -jar one-net-client-clear-1.2-RELEASE.jar > one-net-client.log
-    ```
+        ```
 5. Check Internet access of your services.
    - check your local service access by Internet. 
 
+## Performance
+1. The IO core is base on Netty 4.1.9. It is total as-sync.
+2. Byte level transfer protocol result in low cost.
+3. Localhost connection pool supported.
+3. 100 threads, 100 request each thread,  test result.
+    ![alt text](https://github.com/ableli/one-net/blob/master/doc/image/100X100-Request-Test.png "Logo Title Text 1")
 
-##Road Map
+
+## Road Map
 1. Web UI Console
