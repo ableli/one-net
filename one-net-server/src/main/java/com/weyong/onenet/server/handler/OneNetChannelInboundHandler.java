@@ -33,7 +33,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
             log.info(String.format("Client session %s inactive.", clientSession.getClientName()));
             this.clientSession.setClientChannel(null);
         }
-        oneNetServer.closeSessions(ctx.channel());
+        oneNetServer.closeSessionsByClient(ctx.channel());
     }
 
 

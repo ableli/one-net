@@ -4,6 +4,7 @@ import com.weyong.onenet.server.initializer.InternetChannelInitializer;
 import com.weyong.onenet.server.OneNetServer;
 import com.weyong.onenet.server.config.OneNetServerContextConfig;
 import com.weyong.onenet.server.manager.OneNetConnectionManager;
+import com.weyong.onenet.server.session.ClientSession;
 import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -60,8 +61,8 @@ public class OneNetServerContext {
         return oneNetSessions.get(sessionId);
     }
 
-    public OneNetSession createSession(Channel ch, Channel oneNetChannel) {
-        OneNetSession oneNetSession = new OneNetSession(this.getOneNetServerContextConfig().getContextName(), ch, oneNetChannel);
+    public OneNetSession createSession(Channel ch, ClientSession clientSession) {
+        OneNetSession oneNetSession = new OneNetSession(this.getOneNetServerContextConfig().getContextName(), ch, clientSession);
         oneNetSessions.put(oneNetSession.getSessionId(), oneNetSession);
         return oneNetSession;
     }
@@ -89,7 +90,7 @@ public class OneNetServerContext {
         }
     }
 
-    public Channel getAvailableChannel() {
-        return this.getOneNetConnectionManager().getAvailableChannel(this.getOneNetServerContextConfig().getContextName());
+    public ClientSession getAvailableSession() {
+        return this.getOneNetConnectionManager().getAvailableSession(this.getOneNetServerContextConfig().getContextName());
     }
 }

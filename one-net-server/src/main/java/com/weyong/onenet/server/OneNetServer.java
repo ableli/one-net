@@ -82,13 +82,14 @@ public class OneNetServer {
                 , (contextName) -> new OneNetServerContext(oneNetContextConfig, oneNetTcpConnectionManager));
     }
 
-    public void closeSessions(Channel channel) {
+    public void closeSessionsByClient(Channel channel) {
         getContexts().values().stream().forEach((oneNetServerContext) -> {
             oneNetServerContext.getOneNetSessions().values().stream()
                     .filter((oneNetSession) -> {
-                                return oneNetSession.getOneNetChannel() == channel;
+                                return oneNetSession.getClientSession().getClientChannel() == channel;
                             }
                     ).forEach((toCloseSession) -> {
+                        toCloseSession.getClientSession().setClientChannel(null);
                         oneNetServerContext.close(toCloseSession);
                     }
             );

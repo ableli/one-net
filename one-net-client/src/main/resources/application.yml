@@ -21,6 +21,16 @@ oneNetClient:
           localhost: localhost
           port: 88
           localPool: true
+          poolConifg:
+            maxIdle: 8
+            minIdle: 8
+            maxTotal: 1024
+            blockWhenExhausted: true
+            testWhileIdle: false
+            testOnBorrow: true
+            testOnReturn: false
+            maxWaitMillis: 3000
+            TimeBetweenEvictionRunsMillis: 30000
         -
           contextName: mstsc
           localhost: localhost
@@ -30,9 +40,9 @@ oneNetClient:
           contextName: test1
           localhost: localhost
           port: 88
-          localPool: false
+          localPool: true
         -
           contextName: test2
           localhost: localhost
           port: 82
-          localPool: false
+          localPool: true

@@ -5,6 +5,7 @@ import com.weyong.onenet.dto.DataPackage;
 import com.weyong.onenet.server.initializer.HttpChannelInitializer;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import com.weyong.onenet.server.context.OneNetServerHttpContextHolder;
+import com.weyong.onenet.server.session.ClientSession;
 import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -38,7 +39,7 @@ public class HttpChannelInboundHandler extends HttpObjectDecoder {
         in.resetReaderIndex();
         super.channelRead(ctx, msg);
         if (httpSession != null) {
-            httpSession.getOneNetChannel().writeAndFlush(new DataPackage(
+            httpSession.getClientSession().getClientChannel().writeAndFlush(new DataPackage(
                     httpSession.getContextName(),
                     httpSession.getSessionId(),
                     currentData,
@@ -80,9 +81,9 @@ public class HttpChannelInboundHandler extends HttpObjectDecoder {
                 hostName = headers.get("HOST");
                 if (StringUtils.isNotEmpty(hostName)) {
                     oneNetServerContext = OneNetServerHttpContextHolder.instance.getContext(hostName);
-                    Channel channel = oneNetServerContext.getAvailableChannel();
-                    if (channel != null) {
-                        httpSession = oneNetServerContext.createSession(ctx.channel(), channel);
+                    ClientSession clientSession = oneNetServerContext.getAvailableSession();
+                    if (clientSession.isActive()) {
+                        httpSession = oneNetServerContext.createSession(ctx.channel(), clientSession);
                     }
                 }
             }

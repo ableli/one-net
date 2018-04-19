@@ -28,6 +28,10 @@ public class InternetChannelInboundHandler extends ChannelInboundHandlerAdapter 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ByteBuf in = (ByteBuf) msg;
+        if(!oneNetSession.getClientSession().isActive()) {
+            in.release();
+            ctx.close();
+        }
         while (in.readableBytes() > 0) {
             int length = DataPackage.FRAME_MAX_SIZE < in.readableBytes() ? DataPackage.FRAME_MAX_SIZE : in.readableBytes();
             byte[] currentData = new byte[length];
@@ -38,9 +42,8 @@ public class InternetChannelInboundHandler extends ChannelInboundHandlerAdapter 
                     currentData,
                     oneNetServerContext.getOneNetServerContextConfig().isZip(),
                     oneNetServerContext.getOneNetServerContextConfig().isAes());
-            oneNetSession.getOneNetChannel().writeAndFlush(dt);
-
-        }
+                oneNetSession.getClientSession().getClientChannel().writeAndFlush(dt);
+            }
         in.release();
     }
 

@@ -17,19 +17,19 @@ public class OneNetSession {
     private Long sessionId;
     private String contextName;
     private Channel internetChannel;
-    private Channel oneNetChannel;
+    private ClientSession clientSession;
 
 
-    public OneNetSession(String contextName, Channel ch, Channel oneNetChannel) {
+    public OneNetSession(String contextName, Channel ch, ClientSession clientSession) {
         this.sessionId = index.incrementAndGet();
         this.internetChannel = ch;
-        this.oneNetChannel = oneNetChannel;
+        this.clientSession = clientSession;
         this.contextName = contextName;
     }
 
     public void close() {
-        if (this.oneNetChannel.isActive()) {
-            oneNetChannel.writeAndFlush(new InvalidSessionPackage(getContextName(), sessionId));
+        if (this.clientSession.isActive()) {
+            clientSession.getClientChannel().writeAndFlush(new InvalidSessionPackage(getContextName(), sessionId));
         }
         if (internetChannel != null && internetChannel.isActive()) {
             internetChannel.close();

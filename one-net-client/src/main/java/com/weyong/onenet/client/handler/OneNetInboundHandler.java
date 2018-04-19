@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Created by hao.li on 2017/4/13.
@@ -21,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackage> {
     private ServerSession serverSession;
+    private static Executor executor = Executors.newCachedThreadPool();
 
     public OneNetInboundHandler(ServerSession serverSession) {
         this.serverSession = serverSession;
@@ -44,6 +47,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
             case BasePackage.INVALID_SESSION:
                 String oneNetName = msg.getContextName();
                 Long sessionId = msg.getSessionId();
+                //log.info(String.format("context %s session %d closed from server.",oneNetName,sessionId));
                 if (StringUtils.isNotEmpty(oneNetName) && sessionId != null) {
                     OneNetClientContext context = serverSession.getOneNetClientContextMap().get(oneNetName);
                     context.close(sessionId);
@@ -66,6 +70,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
                         CompletableFuture.runAsync(() -> {
                             ClientSession newSession = context.getCurrentSession(serverSession, msg.getSessionId());
                             if (newSession == null) {
+                                log.info("Local Channel can't create from queue.");
                                 ctx.channel().writeAndFlush(
                                         new InvalidSessionPackage(
                                                 msg.getContextName(),
@@ -73,7 +78,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
                             } else {
                                 newSession.getLocalChannel().writeAndFlush(((DataPackage) msg).getRawData());
                             }
-                        });
+                        },executor);
                     }
                 }
                 break;

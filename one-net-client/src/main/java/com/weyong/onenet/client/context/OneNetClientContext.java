@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.beans.BeanUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,16 +48,9 @@ public class OneNetClientContext {
 
     private GenericObjectPoolConfig getGenericObjectPoolConfig() {
         GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
-        poolConfig.setMaxIdle(50);
-        poolConfig.setMaxTotal(1024);
-        poolConfig.setMinIdle(25);
-        poolConfig.setBlockWhenExhausted(true);
-        poolConfig.setFairness(true);
-        poolConfig.setMaxWaitMillis(1000);
-        poolConfig.setTestWhileIdle(true);
-        poolConfig.setTestOnBorrow(true);
-        poolConfig.setTestOnReturn(false);
-        poolConfig.setTimeBetweenEvictionRunsMillis(1000);
+        if(oneNetClientContextConfig.getPoolConfig()!=null) {
+            BeanUtils.copyProperties(oneNetClientContextConfig.getPoolConfig(), poolConfig);
+        }
         return poolConfig;
     }
 
@@ -68,6 +62,7 @@ public class OneNetClientContext {
                     new LocalChannelInitializer(this, clientSession));
         } else {
             try {
+                //log.info(String.format("%s channel borrowed. ,Local Pool active %d , idle %d",this.getOneNetClientContextConfig().getContextName(),localPool.getNumActive(),localPool.getNumIdle()));
                 channel = localPool.borrowObject();
             } catch (Exception e) {
                 throw new RuntimeException("Can't borrow object from pool. - " + e.getMessage());
@@ -89,7 +84,13 @@ public class OneNetClientContext {
         } else {
             log.debug("Before return :" + localPool.getNumActive() + "-" + localPool.getNumIdle());
             try {
-                localPool.returnObject(channel);
+                if(channel.isActive()) {
+//                    log.info(String.format("%s channel returned. ,Local Pool active %d , idle %d",this.getOneNetClientContextConfig().getContextName(),localPool.getNumActive(),localPool.getNumIdle()));
+                    localPool.returnObject(channel);
+                }else{
+//                    log.info(String.format("%s channel removed. ,Local Pool active %d , idle %d",this.getOneNetClientContextConfig().getContextName(),localPool.getNumActive(),localPool.getNumIdle()));
+                    removeFromPool(channel);
+                }
             } catch (Exception e) {
                 log.info(e.getMessage() + localPool.getNumActive() + "-" + localPool.getNumIdle());
             }
@@ -98,12 +99,10 @@ public class OneNetClientContext {
     }
 
     public void removeFromPool(Channel channel) {
-        if (oneNetClientContextConfig.isLocalPool()) {
-            try {
-                localPool.invalidateObject(channel);
-            } catch (Exception e) {
-                log.info(e.getMessage() + localPool.getNumActive() + "-" + localPool.getNumIdle());
-            }
+        try {
+            localPool.invalidateObject(channel);
+        } catch (Exception e) {
+            log.info(e.getMessage() + localPool.getNumActive() + "-" + localPool.getNumIdle());
         }
     }
 

@@ -13,12 +13,12 @@ import java.util.List;
 @Slf4j
 public class OneNetTcpConnectionManager extends OneNetConnectionManager {
     @Override
-    public Channel getAvailableChannel(String contextName) {
+    public ClientSession getAvailableSession(String contextName) {
         if (!this.getContextNameSessionMap().containsKey(contextName)) {
             return null;
         }
         List<ClientSession> sessions = getContextNameSessionMap().get(contextName);
-        return getChannel(sessions);
+        return getSession(sessions);
     }
 
 

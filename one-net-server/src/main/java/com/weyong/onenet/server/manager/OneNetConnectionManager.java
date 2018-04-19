@@ -20,35 +20,31 @@ public abstract class OneNetConnectionManager {
     private AtomicInteger random = new AtomicInteger(1);
     private ConcurrentHashMap<String, List<ClientSession>> contextNameSessionMap = new ConcurrentHashMap<>();
 
-    public abstract Channel getAvailableChannel(String contextName);
+    public abstract ClientSession getAvailableSession(String contextName);
 
-    protected Channel getChannel(List<ClientSession> sessions) {
+    protected ClientSession getSession(List<ClientSession> sessions) {
         if (CollectionUtils.isEmpty(sessions)) {
             return null;
         }
-        Channel selectedChannel = null;
-        while (selectedChannel == null && !CollectionUtils.isEmpty(sessions)) {
+        ClientSession selectedSession = null;
+        while (selectedSession == null && !CollectionUtils.isEmpty(sessions)) {
             int selectedOne = getRandom().incrementAndGet() % sessions.size();
             ClientSession clientSession = sessions.get(selectedOne);
-            if (clientSession != null && clientSession.getClientChannel() != null) {
-                selectedChannel = clientSession.getClientChannel();
+            if (clientSession != null && clientSession.isActive()) {
+                selectedSession =clientSession;
             } else {
                 sessions.remove(clientSession);
             }
         }
-        return selectedChannel;
+        return selectedSession;
     }
 
     public void registerClientSession(String name, ClientSession clientSession) {
-        this.getContextNameSessionMap().compute(name, (key, sessions) -> {
-            if (sessions == null) {
-                sessions = new LinkedList<>();
-            }
-            if (!sessions.contains(clientSession)) {
-                sessions.add(clientSession);
-            }
-            return sessions;
-        });
+        List<ClientSession> sessions = this.getContextNameSessionMap().getOrDefault(name, new LinkedList<>());
+        if (!sessions.contains(clientSession)) {
+            sessions.add(clientSession);
+        }
+        this.getContextNameSessionMap().putIfAbsent(name, sessions);
     }
 
 }

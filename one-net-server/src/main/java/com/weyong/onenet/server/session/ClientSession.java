@@ -16,4 +16,8 @@ public class ClientSession {
     public ClientSession(String clientName) {
         this.clientName = clientName;
     }
+
+    public boolean isActive() {
+        return clientChannel != null && clientChannel.isActive();
+    }
 }

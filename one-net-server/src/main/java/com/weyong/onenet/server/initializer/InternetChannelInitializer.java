@@ -3,6 +3,7 @@ package com.weyong.onenet.server.initializer;
 import com.weyong.constants.OneNetCommonConstants;
 import com.weyong.onenet.server.context.OneNetServerContext;
 import com.weyong.onenet.server.handler.InternetChannelInboundHandler;
+import com.weyong.onenet.server.session.ClientSession;
 import com.weyong.onenet.server.session.OneNetSession;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -24,13 +25,13 @@ public class InternetChannelInitializer extends ChannelInitializer<SocketChannel
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        Channel oneNetChannel =
-                oneNetServerContext.getOneNetConnectionManager().getAvailableChannel(
+        ClientSession clientSession =
+                oneNetServerContext.getOneNetConnectionManager().getAvailableSession(
                         oneNetServerContext.getOneNetServerContextConfig().getContextName());
-        if (oneNetChannel == null) {
+        if (!clientSession.isActive()) {
             ch.close();
         } else {
-            OneNetSession oneNetSession = oneNetServerContext.createSession(ch, oneNetChannel);
+            OneNetSession oneNetSession = oneNetServerContext.createSession(ch, clientSession);
             int bytePreSecond = oneNetServerContext.getOneNetServerContextConfig().getKBps() * OneNetCommonConstants.KByte;
             ch.pipeline()
                     .addLast(new ChannelTrafficShapingHandler(bytePreSecond,
