@@ -45,30 +45,32 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                     ctx.channel().writeAndFlush(msg);
                     break;
                 case BasePackage.INITIAL_REQUEST:
-                    InitialRequestPackage requestMsg = (InitialRequestPackage) msg;
-                    if (CollectionUtils.isEmpty(requestMsg.getContextNames())) {
-                        ctx.close();
-                        break;
-                    }
-                    log.info(String.format("Client %s with contexts [%s] request connections.",
-                            requestMsg.getClientName(), StringUtils.join(requestMsg.getContextNames(), ",")));
-                    if (clientSession == null) {
-                        clientSession = new ClientSession(requestMsg.getClientName(), ctx.channel());
-                    } else {
-                        clientSession.setClientChannel(ctx.channel());
-                    }
-                    requestMsg.getContextNames().stream().forEach((contextName) -> {
-                        if (!oneNetServer.getContexts().containsKey(contextName)) {
-                            ctx.channel().writeAndFlush(new MessagePackage(
-                                    String.format("OneNet %s's config not found in Server", contextName)));
-                        } else {
-                            OneNetServerContextConfig config = oneNetServer.getContexts().get(contextName).getOneNetServerContextConfig(contextName);
-                            ctx.channel().writeAndFlush(new InitialResponsePackage(contextName, config.isZip(), config.isAes(), config.getKBps()));
-                            oneNetServer.getOneNetTcpConnectionManager().registerClientSession(
-                                    contextName, clientSession);
-
+                    synchronized (clientSession) {
+                        InitialRequestPackage requestMsg = (InitialRequestPackage) msg;
+                        if (CollectionUtils.isEmpty(requestMsg.getContextNames())) {
+                            ctx.close();
+                            break;
                         }
-                    });
+                        log.info(String.format("Client %s with contexts [%s] request connections.",
+                                requestMsg.getClientName(), StringUtils.join(requestMsg.getContextNames(), ",")));
+                        if (clientSession == null) {
+                            clientSession = new ClientSession(requestMsg.getClientName(), ctx.channel());
+                        } else {
+                            clientSession.setClientChannel(ctx.channel());
+                        }
+                        requestMsg.getContextNames().stream().forEach((contextName) -> {
+                            if (!oneNetServer.getContexts().containsKey(contextName)) {
+                                ctx.channel().writeAndFlush(new MessagePackage(
+                                        String.format("OneNet %s's config not found in Server", contextName)));
+                            } else {
+                                OneNetServerContextConfig config = oneNetServer.getContexts().get(contextName).getOneNetServerContextConfig();
+                                ctx.channel().writeAndFlush(new InitialResponsePackage(contextName, config.isZip(), config.isAes(), config.getKBps()));
+                                oneNetServer.getOneNetTcpConnectionManager().registerClientSession(
+                                        contextName, clientSession);
+
+                            }
+                        });
+                    }
                     break;
                 case BasePackage.INVALID_SESSION:
                     OneNetServerContext oneNetServerContext = oneNetServer.getContexts().get(msg.getContextName());
@@ -80,8 +82,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                     oneNetServerContext = oneNetServer.getContexts().get(msg.getContextName());
                     if (oneNetServerContext == null) {
                         return;
-                    }
-                    ;
+                    };
                     OneNetSession oneNetSession =
                             oneNetServerContext.getOneNetSessions().get(msg.getSessionId());
                     if (oneNetSession != null) {
@@ -89,6 +90,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                         byte[] outputData = dataPackage.getRawData();
                         oneNetSession.getInternetChannel().writeAndFlush(outputData);
                     } else {
+                        oneNetSession.getClientSession().getClientChannel().writeAndFlush(new InvalidSessionPackage(msg.getContextName(),msg.getSessionId()));
                         log.info("Can't find exist session :" + msg.getSessionId());
                     }
             }

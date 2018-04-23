@@ -30,6 +30,7 @@ public class InternetChannelInitializer extends ChannelInitializer<SocketChannel
                         oneNetServerContext.getOneNetServerContextConfig().getContextName());
         if (!clientSession.isActive()) {
             ch.close();
+            log.info(String.format("Can't found %s's client session.",oneNetServerContext.getOneNetServerContextConfig().getContextName()));
         } else {
             OneNetSession oneNetSession = oneNetServerContext.createSession(ch, clientSession);
             int bytePreSecond = oneNetServerContext.getOneNetServerContextConfig().getKBps() * OneNetCommonConstants.KByte;

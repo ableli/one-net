@@ -67,7 +67,7 @@ public class OneNetServerContext {
         return oneNetSession;
     }
 
-    public OneNetServerContextConfig getOneNetServerContextConfig(String name) {
+    public OneNetServerContextConfig getOneNetServerContextConfig() {
         return oneNetServerContextConfig;
     }
 
