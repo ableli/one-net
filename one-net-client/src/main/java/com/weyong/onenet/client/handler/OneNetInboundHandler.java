@@ -23,7 +23,6 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackage> {
     private ServerSession serverSession;
-    private static Executor executor = Executors.newCachedThreadPool();
 
     public OneNetInboundHandler(ServerSession serverSession) {
         this.serverSession = serverSession;
@@ -70,7 +69,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
                         CompletableFuture.runAsync(() -> {
                             ClientSession newSession = context.getCurrentSession(serverSession, msg.getSessionId());
                             if (newSession == null) {
-                                log.info("Local Channel can't create from queue.");
+                                log.info("Local Channel can't create from pool.");
                                 ctx.channel().writeAndFlush(
                                         new InvalidSessionPackage(
                                                 msg.getContextName(),
@@ -78,7 +77,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
                             } else {
                                 newSession.getLocalChannel().writeAndFlush(((DataPackage) msg).getRawData());
                             }
-                        },executor);
+                        });
                     }
                 }
                 break;

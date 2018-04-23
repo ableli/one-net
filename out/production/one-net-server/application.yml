@@ -1,0 +1,43 @@
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+logging:
+  level:
+    root: error
+    org.springframework.boot: error
+    com.weyong: info
+    io.netty.handler.logging: debug
+oneNetServer:
+  name: firstServer
+  oneNetPort: 9527
+  tcpContexts:
+    -
+      contextName: weyong
+      internetPort: 83
+      zip: true
+      aes: false
+      kBps: 200
+    -
+      contextName: mstsc
+      internetPort: 56789
+      kBps: 200
+      zip: true
+      aes: false
+  httpContexts:
+    -
+      contextName: test1
+      zip: true
+      aes: false
+      kBps: 200
+      domainRegExs:
+        -
+          \w+.test1.com
+    -
+      contextName: test2
+      zip: true
+      aes: false
+      kBps: 200
+      domainRegExs:
+        -
+          \w+.test2.com

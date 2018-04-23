@@ -33,7 +33,7 @@ public class LocalChannelFactory extends BasePooledObjectFactory<Channel> {
 
     @Override
     public boolean validateObject(PooledObject<Channel> p) {
-        if (!p.getObject().isActive()) {
+        if (!p.getObject().isOpen()) {
             log.debug(String.format("Local target channel is inactive. exist time:%d", System.currentTimeMillis() - p.getCreateTime()));
             return false;
         }

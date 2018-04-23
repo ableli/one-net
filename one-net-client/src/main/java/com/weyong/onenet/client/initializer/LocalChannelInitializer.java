@@ -8,6 +8,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import io.netty.handler.traffic.ChannelTrafficShapingHandler;
 
 /**
@@ -31,7 +32,8 @@ public class LocalChannelInitializer extends ChannelInitializer<SocketChannel> {
         if (clientSession != null) {
             bytesPreSecond = oneNetClientContext.getKBps() * OneNetCommonConstants.KByte;
         }
-        p.addLast(CHANNEL_TRAFFIC_HANDLER, new ChannelTrafficShapingHandler(bytesPreSecond,
+        p.addLast(new WriteTimeoutHandler(5))
+                .addLast(CHANNEL_TRAFFIC_HANDLER, new ChannelTrafficShapingHandler(bytesPreSecond,
                 bytesPreSecond))
                 .addLast(LOCAL_RESPONSE_HANDLER, new LocalInboudHandler(oneNetClientContext, clientSession))
                 .addLast(new ByteArrayEncoder());

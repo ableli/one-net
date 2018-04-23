@@ -20,7 +20,7 @@ public class OneNetPoolEvictionPolicy extends DefaultEvictionPolicy<Channel> {
            log.debug("Pool object eviction check failed.");
            return true;
        }
-       if(!underTest.getObject().isActive()){
+       if(!underTest.getObject().isOpen()){
            log.debug("Pool object eviction check failed.");
            return true;
        }

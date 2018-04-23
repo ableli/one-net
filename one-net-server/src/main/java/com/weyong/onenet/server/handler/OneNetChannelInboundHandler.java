@@ -45,7 +45,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                     ctx.channel().writeAndFlush(msg);
                     break;
                 case BasePackage.INITIAL_REQUEST:
-                    synchronized (clientSession) {
+                    synchronized (this) {
                         InitialRequestPackage requestMsg = (InitialRequestPackage) msg;
                         if (CollectionUtils.isEmpty(requestMsg.getContextNames())) {
                             ctx.close();
@@ -90,8 +90,10 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                         byte[] outputData = dataPackage.getRawData();
                         oneNetSession.getInternetChannel().writeAndFlush(outputData);
                     } else {
-                        oneNetSession.getClientSession().getClientChannel().writeAndFlush(new InvalidSessionPackage(msg.getContextName(),msg.getSessionId()));
-                        log.info("Can't find exist session :" + msg.getSessionId());
+                        if(oneNetSession.getClientSession().getClientChannel()!=null) {
+                            oneNetSession.getClientSession().getClientChannel().writeAndFlush(new InvalidSessionPackage(msg.getContextName(), msg.getSessionId()));
+                            log.info("Can't find exist session :" + msg.getSessionId());
+                        }
                     }
             }
         } catch (Exception ex) {

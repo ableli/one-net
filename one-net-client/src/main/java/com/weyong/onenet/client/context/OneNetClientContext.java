@@ -51,6 +51,7 @@ public class OneNetClientContext {
         if(oneNetClientContextConfig.getPoolConfig()!=null) {
             BeanUtils.copyProperties(oneNetClientContextConfig.getPoolConfig(), poolConfig);
         }
+        poolConfig.setLifo(false);
         return poolConfig;
     }
 
@@ -82,27 +83,25 @@ public class OneNetClientContext {
         if (!oneNetClientContextConfig.isLocalPool()) {
             channel.close();
         } else {
-            log.debug("Before return :" + localPool.getNumActive() + "-" + localPool.getNumIdle());
+            //log.debug("Before return :" + localPool.getNumActive() + "-" + localPool.getNumIdle());
             try {
-                if(channel.isActive()) {
-//                    log.info(String.format("%s channel returned. ,Local Pool active %d , idle %d",this.getOneNetClientContextConfig().getContextName(),localPool.getNumActive(),localPool.getNumIdle()));
+                    //log.info(String.format("%s channel returned. ,Local Pool active %d , idle %d",this.getOneNetClientContextConfig().getContextName(),localPool.getNumActive(),localPool.getNumIdle()));
                     localPool.returnObject(channel);
-                }else{
-//                    log.info(String.format("%s channel removed. ,Local Pool active %d , idle %d",this.getOneNetClientContextConfig().getContextName(),localPool.getNumActive(),localPool.getNumIdle()));
-                    removeFromPool(channel);
-                }
             } catch (Exception e) {
                 log.info(e.getMessage() + localPool.getNumActive() + "-" + localPool.getNumIdle());
             }
-            log.debug("After return :" + localPool.getNumActive() + "-" + localPool.getNumIdle());
         }
     }
 
     public void removeFromPool(Channel channel) {
-        try {
-            localPool.invalidateObject(channel);
-        } catch (Exception e) {
-            log.info(e.getMessage() + localPool.getNumActive() + "-" + localPool.getNumIdle());
+        if (!oneNetClientContextConfig.isLocalPool()) {
+            channel.close();
+        } else {
+            try {
+                localPool.invalidateObject(channel);
+            } catch (Exception e) {
+                log.info(e.getMessage() + localPool.getNumActive() + "-" + localPool.getNumIdle());
+            }
         }
     }
 
@@ -132,6 +131,14 @@ public class OneNetClientContext {
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
+        }
+    }
+
+    public void closeDirectly(ClientSession clientSession) {
+        ClientSession targetSession = this.getSessionMap().remove(clientSession.getSessionId());
+        if (targetSession != null) {
+            targetSession.close();
+            removeFromPool(targetSession.getLocalChannel());
         }
     }
 }

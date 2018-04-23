@@ -18,6 +18,6 @@ public class ClientSession {
     }
 
     public boolean isActive() {
-        return clientChannel != null && clientChannel.isActive();
+        return clientChannel != null && clientChannel.isOpen();
     }
 }

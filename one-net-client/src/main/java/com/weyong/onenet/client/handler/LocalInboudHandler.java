@@ -6,6 +6,7 @@ import com.weyong.onenet.dto.DataPackage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.WriteTimeoutException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -44,13 +45,15 @@ public class LocalInboudHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        this.oneNetClientContext.close(clientSession);
+        if (cause instanceof WriteTimeoutException) {
+        }
+        this.oneNetClientContext.closeDirectly(clientSession);
         ctx.close();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        this.oneNetClientContext.close(clientSession);
+        this.oneNetClientContext.closeDirectly(clientSession);
         super.channelInactive(ctx);
     }
 }

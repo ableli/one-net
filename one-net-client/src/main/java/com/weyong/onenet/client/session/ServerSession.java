@@ -44,6 +44,7 @@ public class ServerSession {
     }
 
     public void invalidAllClientSessions() {
+        this.lastHeartbeatTime = null;
         oneNetClientContextMap.values().stream().forEach((oneNetClientContext ->
                 oneNetClientContext.closeAll()
         ));

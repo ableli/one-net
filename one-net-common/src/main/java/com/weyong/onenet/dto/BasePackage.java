@@ -145,7 +145,7 @@ public abstract class BasePackage implements Serializable {
         int boolValues = 0;
         for(int i=0;i<bools.length;i++) {
             boolValues = boolValues << 1;
-            boolValues = bools[0] ? boolValues++ : boolValues;
+            boolValues = bools[i] ? boolValues+1 : boolValues;
         }
         return boolValues;
     }

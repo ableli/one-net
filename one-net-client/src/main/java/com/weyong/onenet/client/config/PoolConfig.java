@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class PoolConfig {
     private int maxIdle = 8;
-    private int maxTotal = 10240;
+    private int maxTotal = 1024;
     private int minIdle =8;
     private boolean blockWhenExhausted =true;
     private boolean testWhileIdle = false;

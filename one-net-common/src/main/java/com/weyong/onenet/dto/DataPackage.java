@@ -42,24 +42,25 @@ public class DataPackage extends BasePackage {
     }
 
     public byte[] getRawData() {
+        byte[] tempData = data;
         if (aes) {
-            data = WXBizMsgCrypt.getDecryptBytes(data);
+            tempData = WXBizMsgCrypt.getDecryptBytes(tempData);
         }
         if (zip) {
-            data = ByteZipUtil.unGzip(data);
+            tempData = ByteZipUtil.unGzip(tempData);
         }
-        return data;
+        return tempData;
     }
 
     public byte[] getData() {
-        byte[] output = data;
+        byte[] tempData = data;
         if (zip) {
-            output = ByteZipUtil.gzip(output);
+            tempData = ByteZipUtil.gzip(tempData);
         }
         if (aes) {
-            output = WXBizMsgCrypt.getEncryptBytes(output);
+            tempData = WXBizMsgCrypt.getEncryptBytes(tempData);
         }
-        return output;
+        return tempData;
     }
 
     @Override

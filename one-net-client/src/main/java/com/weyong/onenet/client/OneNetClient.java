@@ -15,6 +15,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by hao.li on 2017/4/13.
  */
@@ -48,8 +50,13 @@ public class OneNetClient {
     public static Channel createChannel(final String ip, final int port, ChannelInitializer channelInitializer) {
         ChannelFuture channelFuture = null;
         try {
-            channelFuture = bootstrap.handler(channelInitializer).connect(ip, port).sync();
-            return channelFuture.channel();
+            channelFuture = bootstrap.handler(channelInitializer).connect(ip, port);
+            if(channelFuture.await(200,TimeUnit.MILLISECONDS)) {
+                return channelFuture.channel();
+            }else{
+                log.error(String.format("get local channel %s:%d failed",ip,port));
+                return null;
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
