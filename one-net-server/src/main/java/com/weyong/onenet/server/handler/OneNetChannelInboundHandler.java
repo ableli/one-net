@@ -40,7 +40,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, BasePackage msg) throws Exception {
         try {
-            switch (msg.getOpType()) {
+            switch (msg.getMsgType()) {
                 case BasePackage.HEART_BEAT:
                     ctx.channel().writeAndFlush(msg);
                     break;

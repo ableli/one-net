@@ -27,7 +27,7 @@ public class OneNetServerSessionManager {
     private String clientName;
     private Integer reconnectAfterNSeconds;
 
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedDelay = 2000)
     private void heartbeat() {
         oneNetServerSessions.values().stream().forEach(serverSession -> {
             if (serverSession.getLastHeartbeatTime() == null) {

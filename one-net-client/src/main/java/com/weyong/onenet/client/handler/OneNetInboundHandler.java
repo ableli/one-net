@@ -37,7 +37,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, BasePackage msg) {
-        switch (msg.getOpType()) {
+        switch (msg.getMsgType()) {
             case BasePackage.HEART_BEAT:
                 serverSession.setLastHeartbeatTime(new Date());
                 break;

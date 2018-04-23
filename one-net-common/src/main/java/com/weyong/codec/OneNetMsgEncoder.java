@@ -9,6 +9,12 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import java.nio.ByteBuffer;
 
 /**
+ * It is a Netty channel outbound handler, it encoding the Msg object to byte array
+ * and apply the length frame protocol
+ *
+ * Each Netty worker thread has a reusable {@link ByteBuffer} in define at {@link BasePackage}
+ * {@link ThreadLocal} byteBufferThreadLocal.
+ *
  * Created by haoli on 2018/4/7.
  */
 public class OneNetMsgEncoder extends MessageToByteEncoder<BasePackage> {
@@ -17,18 +23,8 @@ public class OneNetMsgEncoder extends MessageToByteEncoder<BasePackage> {
     @Override
     protected void encode(ChannelHandlerContext ctx, BasePackage msg, ByteBuf out) throws Exception {
         int startIdx = out.writerIndex();
-        ByteBufOutputStream bout = new ByteBufOutputStream(out);
-        if (msg.getByteBufferThreadLocal().get() == null) {
-            msg.getByteBufferThreadLocal().set(ByteBuffer.allocate(1048576));
-        }
-        try {
-            bout.write(LENGTH_PLACEHOLDER);
-            bout.write(msg.toBytes());
-            bout.flush();
-        } finally {
-            bout.close();
-        }
-
+        out.writeBytes(LENGTH_PLACEHOLDER);
+        out.writeBytes(msg.toBytes());
         int endIdx = out.writerIndex();
         out.setInt(startIdx, endIdx - startIdx - 4);
     }
