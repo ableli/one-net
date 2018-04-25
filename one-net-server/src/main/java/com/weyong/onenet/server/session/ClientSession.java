@@ -28,6 +28,8 @@ public class ClientSession {
     }
 
     public void close() {
-        clientChannel.close();
+        if(clientChannel!=null) {
+            clientChannel.close();
+        }
     }
 }

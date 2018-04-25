@@ -29,13 +29,13 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        ctx.channel().close();
-        ctx.close();
         if (clientSession != null && StringUtils.isNotEmpty(this.clientSession.getClientName())) {
             log.info(String.format("Client session %s inactive.", clientSession.getClientName()));
             this.clientSession.setClientChannel(null);
         }
         oneNetServer.closeSessionsByClient(ctx.channel());
+        ctx.channel().close();
+        ctx.close();
     }
 
 
