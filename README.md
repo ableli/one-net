@@ -6,8 +6,12 @@ Client/Server mode.
 High performance on High concurrent.
 Industry level software.
 ## Release
-* Latest version: 1.2-RELEASE
-* Sources branch: 1.2-RELEASE
+* Latest version: 1.3-RELEASE
+* Sources branch: 1.3-RELEASE
+* Update Note 1.3-RELEASE.
+    * Enable the client pool config.
+    * Fix the major issue of too many invalid OneNet channels.
+    * Add timeout in local connection creation process.
 
 ## Features
 1. TCP and HTTP one direction tunnel
@@ -35,8 +39,8 @@ Industry level software.
     ```
     the jar output are in [project root dir][sub project dir]/build/libs
     - Direct download
-        - [one-net-server-clear-1.2-RELEASE](http://www.weyong.net/server/one-net-server-clear-1.2-RELEASE.jar)
-        - [one-net-client-clear-1.2-RELEASE](http://www.weyong.net/client/one-net-client-clear-1.2-RELEASE.jar)
+        - [one-net-server-clear-1.3-RELEASE](http://www.weyong.net/1.3/server/one-net-server-clear-1.3-RELEASE.jar)
+        - [one-net-client-clear-1.3-RELEASE](http://www.weyong.net/1.3/client/one-net-client-clear-1.3-RELEASE.jar)
      > The files hosted in my home and tunnel by OneNet via Cloud VPS :)
 3. Config your tunnels
     - create application.yml files for both server and client, the following template is for Server.
@@ -49,7 +53,7 @@ Industry level software.
         test1 | [server]:80 | [127.0.0.1]:88
         test2 | [server]:80 | [127.0.0.1]:82||
 
-        [application.yml for server](http://www.weyong.net/server/application.yml)
+        [application.yml for server](http://www.weyong.net/1.3/server/application.yml)
         
         ```yml
             #The OneNetServer config template
@@ -99,7 +103,7 @@ Industry level software.
                       \w+.test2.com
         ```
             
-        [application.yml for client](http://www.weyong.net/client/application.yml)
+        [application.yml for client](http://www.weyong.net/1.3/client/application.yml)
         
         ```yml
             #The OneNetClient config template
@@ -127,6 +131,17 @@ Industry level software.
                       localhost: 127.0.0.1
                       port: 88
                       localPool: true
+                      poolConfig:
+                        maxIdle: 50
+                        minIdle: 30
+                        maxTotal: 1024
+                        blockWhenExhausted: true
+                        fireness: true
+                        testWhileIdle: true
+                        testOnBorrow: true
+                        testOnReturn: false
+                        maxWaitMillis: 100
+                        timeBetweenEvictionRunsMillis: 1000
                     -
                       contextName: mstsc
                       localhost: 127.0.0.1
@@ -144,13 +159,14 @@ Industry level software.
                       localPool: false
         ```
         > The application.yml need edit in professional editor VS Code and IDEA .etc, Any informat or speicial char will cause error.
+        The pool config is critical to performance, change the value until you know what it is.
 4. Start Server and Client.
     - put application.yml in the same folder with jar file
         ```shell
         #for server
-        /usr/bin/java -Xmx256m -jar one-net-server-clear-1.2-RELEASE.jar > one-net-server.log
+        /usr/bin/java -Xmx256m -jar one-net-server-clear-1.3-RELEASE.jar > one-net-server.log
         #for client
-        /usr/bin/java -Xmx256m -jar one-net-client-clear-1.2-RELEASE.jar > one-net-client.log
+        /usr/bin/java -Xmx256m -jar one-net-client-clear-1.3-RELEASE.jar > one-net-client.log
         ```
 5. Check Internet access of your services.
    - check your local service access by Internet. 
