@@ -35,4 +35,10 @@ public class OneNetSession {
             internetChannel.close();
         }
     }
+
+    @Override
+    public String toString(){
+        return String.format("Session:%d Context:%s OutChannel:%s ClientSession:%s OneNetChannel:%s",sessionId,contextName,
+                internetChannel.id().asShortText(),clientSession.getClientName(),clientSession.getClientChannel().id().asShortText());
+    }
 }

@@ -42,9 +42,11 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
         try {
             switch (msg.getMsgType()) {
                 case BasePackage.HEART_BEAT:
+                    log.debug("HEART_BEAT at"+ctx.channel().id().asShortText());
                     ctx.channel().writeAndFlush(msg);
                     break;
                 case BasePackage.INITIAL_REQUEST:
+                    log.debug("INITIAL_REQUEST at"+ctx.channel().id().asShortText());
                     synchronized (this) {
                         InitialRequestPackage requestMsg = (InitialRequestPackage) msg;
                         if (CollectionUtils.isEmpty(requestMsg.getContextNames())) {
@@ -73,12 +75,14 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                     }
                     break;
                 case BasePackage.INVALID_SESSION:
+                    log.debug("INVALID_SESSION at"+ctx.channel().id().asShortText());
                     OneNetServerContext oneNetServerContext = oneNetServer.getContexts().get(msg.getContextName());
                     if (oneNetServerContext != null) {
                         oneNetServerContext.close(msg.getSessionId());
                     }
                     break;
                 case BasePackage.DATA:
+                    log.debug("DATA at"+ctx.channel().id().asShortText());
                     oneNetServerContext = oneNetServer.getContexts().get(msg.getContextName());
                     if (oneNetServerContext == null) {
                         return;
@@ -90,7 +94,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                         byte[] outputData = dataPackage.getRawData();
                         oneNetSession.getInternetChannel().writeAndFlush(outputData);
                     } else {
-                        if(oneNetSession.getClientSession().getClientChannel()!=null) {
+                        if(oneNetSession.getClientSession()!=null && oneNetSession.getClientSession().getClientChannel()!=null) {
                             oneNetSession.getClientSession().getClientChannel().writeAndFlush(new InvalidSessionPackage(msg.getContextName(), msg.getSessionId()));
                             log.info("Can't find exist session :" + msg.getSessionId());
                         }

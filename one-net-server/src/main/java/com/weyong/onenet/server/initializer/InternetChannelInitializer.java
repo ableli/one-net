@@ -34,6 +34,7 @@ public class InternetChannelInitializer extends ChannelInitializer<SocketChannel
         } else {
             OneNetSession oneNetSession = oneNetServerContext.createSession(ch, clientSession);
             int bytePreSecond = oneNetServerContext.getOneNetServerContextConfig().getKBps() * OneNetCommonConstants.KByte;
+            log.debug("Session create:"+oneNetSession.toString());
             ch.pipeline()
                     .addLast(new ChannelTrafficShapingHandler(bytePreSecond,
                             bytePreSecond))
