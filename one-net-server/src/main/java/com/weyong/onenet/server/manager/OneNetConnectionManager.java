@@ -6,8 +6,10 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Data
 public abstract class OneNetConnectionManager {
     private AtomicInteger random = new AtomicInteger(1);
-    private ConcurrentHashMap<String, List<ClientSession>> contextNameSessionMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, HashMap<String,ClientSession>> contextNameSessionMap = new ConcurrentHashMap<>();
 
     public abstract ClientSession getAvailableSession(String contextName);
 
@@ -39,12 +41,15 @@ public abstract class OneNetConnectionManager {
         return selectedSession;
     }
 
-    public void registerClientSession(String name, ClientSession clientSession) {
-        List<ClientSession> sessions = this.getContextNameSessionMap().getOrDefault(name, new LinkedList<>());
-        if (!sessions.contains(clientSession)) {
-            sessions.add(clientSession);
+    public void registerClientSession(String contextName,String clientName, ClientSession clientSession) {
+        HashMap<String ,ClientSession> clientSessionMap = this.getContextNameSessionMap().getOrDefault(contextName, new HashMap<>());
+        if (clientSessionMap.containsKey(clientName)) {
+            ClientSession oldSession =  clientSessionMap.replace(clientName, clientSession);
+            oldSession.close();
+        }else{
+            clientSessionMap.putIfAbsent(clientName,clientSession);
         }
-        this.getContextNameSessionMap().putIfAbsent(name, sessions);
+        this.getContextNameSessionMap().putIfAbsent(contextName,clientSessionMap);
     }
 
 }

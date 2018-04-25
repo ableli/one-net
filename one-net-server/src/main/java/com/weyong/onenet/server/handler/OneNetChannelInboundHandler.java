@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Date;
+
 /**
  * Author by haoli on 2017/4/12.
  */
@@ -44,6 +46,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                 case BasePackage.HEART_BEAT:
                     log.debug("HEART_BEAT at"+ctx.channel().id().asShortText());
                     ctx.channel().writeAndFlush(msg);
+                    this.clientSession.setLastHeartBeatTime(new Date());
                     break;
                 case BasePackage.INITIAL_REQUEST:
                     log.debug("INITIAL_REQUEST at"+ctx.channel().id().asShortText());
@@ -55,11 +58,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                         }
                         log.info(String.format("Client %s with contexts [%s] request connections.",
                                 requestMsg.getClientName(), StringUtils.join(requestMsg.getContextNames(), ",")));
-                        if (clientSession == null) {
-                            clientSession = new ClientSession(requestMsg.getClientName(), ctx.channel());
-                        } else {
-                            clientSession.setClientChannel(ctx.channel());
-                        }
+                        clientSession = new ClientSession(requestMsg.getClientName(), ctx.channel(),new Date());
                         requestMsg.getContextNames().stream().forEach((contextName) -> {
                             if (!oneNetServer.getContexts().containsKey(contextName)) {
                                 ctx.channel().writeAndFlush(new MessagePackage(
@@ -68,8 +67,7 @@ public class OneNetChannelInboundHandler extends SimpleChannelInboundHandler<Bas
                                 OneNetServerContextConfig config = oneNetServer.getContexts().get(contextName).getOneNetServerContextConfig();
                                 ctx.channel().writeAndFlush(new InitialResponsePackage(contextName, config.isZip(), config.isAes(), config.getKBps()));
                                 oneNetServer.getOneNetTcpConnectionManager().registerClientSession(
-                                        contextName, clientSession);
-
+                                        contextName,requestMsg.getClientName(), clientSession);
                             }
                         });
                     }

@@ -4,8 +4,7 @@ import com.weyong.onenet.server.session.ClientSession;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by haoli on 2018/4/12.
@@ -17,18 +16,7 @@ public class OneNetTcpConnectionManager extends OneNetConnectionManager {
         if (!this.getContextNameSessionMap().containsKey(contextName)) {
             return null;
         }
-        List<ClientSession> sessions = getContextNameSessionMap().get(contextName);
-        return getSession(sessions);
-    }
-
-
-    public ClientSession computeClientSession(String clientName, List<String> contextNames, Channel channel) {
-        ClientSession clientSession = new ClientSession(clientName, channel);
-        contextNames.stream().forEach((contextName) -> {
-            List<ClientSession> sessions = getContextNameSessionMap().computeIfAbsent(contextName, (name) -> new LinkedList<ClientSession>());
-            log.info(String.format("Client context %s -> %s added.", clientName, contextName));
-            sessions.add(clientSession);
-        });
-        return clientSession;
+        Map sessionsMap = getContextNameSessionMap().get(contextName);
+        return getSession(new ArrayList<>(sessionsMap.values()));
     }
 }
