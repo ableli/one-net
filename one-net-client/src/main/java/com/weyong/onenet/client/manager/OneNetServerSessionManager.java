@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -35,9 +37,7 @@ public class OneNetServerSessionManager {
                 heatrbeatOneChannel(serverSession);
                 return;
             }
-            Calendar lastHeartBeatTimeCondition = Calendar.getInstance();
-            lastHeartBeatTimeCondition.add(Calendar.SECOND, reconnectAfterNSeconds);
-            if (lastHeartBeatTimeCondition.getTime().after(serverSession.getLastHeartbeatTime())) {
+            if (Duration.between(serverSession.getLastHeartbeatTime(), Instant.now()).toMillis()>reconnectAfterNSeconds*1000) {
                 log.info(String.format("Server Session %s:%d inactive.Try to renew.",
                         serverSession.getOnenetClientServerConfig().getHostName(), serverSession.getOnenetClientServerConfig().getOneNetPort()));
                 createServerSession(serverSession);

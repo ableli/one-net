@@ -7,6 +7,7 @@ import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Data
 public class ServerSession {
     private Channel serverChannel;
-    private Date lastHeartbeatTime;
+    private Instant lastHeartbeatTime;
     private OnenetClientServerConfig onenetClientServerConfig;
     private Map<String, OneNetClientContext> oneNetClientContextMap = new HashMap<>();
 

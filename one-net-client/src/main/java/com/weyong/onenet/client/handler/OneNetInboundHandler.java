@@ -12,6 +12,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -38,7 +39,7 @@ public class OneNetInboundHandler extends SimpleChannelInboundHandler<BasePackag
     protected void channelRead0(ChannelHandlerContext ctx, BasePackage msg) {
         switch (msg.getMsgType()) {
             case BasePackage.HEART_BEAT:
-                serverSession.setLastHeartbeatTime(new Date());
+                serverSession.setLastHeartbeatTime(Instant.now());
                 break;
             case BasePackage.INITIAL_RESPONSE:
                 serverSession.updateContextSettings((InitialResponsePackage) msg);
